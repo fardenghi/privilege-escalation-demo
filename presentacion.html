@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Grupo 2 · Escalamiento de Privilegios</title>
+<style>
+  :root{
+    --bg:#060608;
+    --panel:#0b0b0e;
+    --red:#ff3644;
+    --red-hot:#ff5964;
+    --red-dim:#c11722;
+    --red-deep:#7a0f16;
+    --ink:#f2f2f4;
+    --sub:#b7b7c0;
+    --muted:#6d6d78;
+    --line:rgba(255,54,68,.14);
+    --line-soft:rgba(255,255,255,.06);
+    --ok:#37d27f;
+    --mono:'SFMono-Regular',ui-monospace,'JetBrains Mono',Menlo,Consolas,monospace;
+    --sans:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);color:var(--ink);font-family:var(--sans);
+    -webkit-font-smoothing:antialiased}
+  body{background:var(--bg)}
+  /* deep-space canvas */
+  #space{position:fixed;inset:0;z-index:0;display:block}
+  /* faint grid overlay above space, below content */
+  #grid{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.5;
+    background-image:
+      linear-gradient(rgba(255,255,255,.016) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.016) 1px, transparent 1px);
+    background-size:64px 64px, 64px 64px}
+  /* scanlines + vignette overlay */
+  #fx{position:fixed;inset:0;z-index:80;pointer-events:none;
+    background:
+      repeating-linear-gradient(0deg, rgba(0,0,0,.18) 0 1px, transparent 1px 3px),
+      radial-gradient(120% 120% at 50% 50%, transparent 62%, rgba(0,0,0,.55) 100%);
+    mix-blend-mode:multiply;opacity:.5}
+  /* corner HUD frame */
+  #frame{position:fixed;inset:18px;z-index:70;pointer-events:none}
+  #frame span{position:absolute;width:34px;height:34px;border:1.5px solid rgba(255,54,68,.55)}
+  #frame .tl{top:0;left:0;border-right:0;border-bottom:0}
+  #frame .tr{top:0;right:0;border-left:0;border-bottom:0}
+  #frame .bl{bottom:0;left:0;border-right:0;border-top:0}
+  #frame .br{bottom:0;right:0;border-left:0;border-top:0}
+
+  /* ---------- Camera / Universe ---------- */
+  #viewport{position:fixed;inset:0;overflow:hidden;z-index:2}
+  #universe{position:absolute;top:0;left:0;width:13000px;height:12400px;transform-origin:0 0}
+
+  .node{position:absolute;padding:40px 46px;
+    background:linear-gradient(180deg, rgba(13,13,16,.94), rgba(8,8,11,.94));
+    border:1px solid var(--line);border-radius:4px;
+    box-shadow:0 24px 70px rgba(0,0,0,.5);
+    transition:border-color .5s ease, box-shadow .5s ease}
+  /* corner brackets */
+  .node::before,.node::after{content:"";position:absolute;width:22px;height:22px;opacity:.55;transition:opacity .5s,border-color .5s;pointer-events:none}
+  .node::before{top:-1px;left:-1px;border-top:2px solid var(--red);border-left:2px solid var(--red)}
+  .node::after{bottom:-1px;right:-1px;border-bottom:2px solid var(--red);border-right:2px solid var(--red)}
+  .node.active{border-color:rgba(255,54,68,.5);
+    box-shadow:0 0 0 1px rgba(255,54,68,.22),0 30px 90px rgba(0,0,0,.6),0 0 120px rgba(255,54,68,.16),0 0 40px rgba(255,54,68,.10) inset}
+  .node.active::before,.node.active::after{opacity:1;border-color:var(--red-hot)}
+  /* holographic sweep on activation */
+  .node .sweep{position:absolute;inset:0;border-radius:4px;overflow:hidden;pointer-events:none;opacity:0}
+  .node.active .sweep{opacity:1}
+  .node .sweep::after{content:"";position:absolute;top:-60%;left:-30%;width:40%;height:220%;
+    background:linear-gradient(105deg,transparent,rgba(255,90,100,.10),rgba(255,255,255,.06),transparent);
+    transform:translateX(-60%) rotate(8deg)}
+  .node.active .sweep::after{animation:sweep 1.5s cubic-bezier(.4,0,.2,1) .25s}
+  @keyframes sweep{0%{transform:translateX(-60%) rotate(8deg)}100%{transform:translateX(560%) rotate(8deg)}}
+
+  /* OS accent: fina línea lateral, resto rojo */
+  .node.win{border-left:2px solid rgba(120,170,255,.35)}
+  .node.lin{border-left:2px solid rgba(255,190,90,.35)}
+
+  .tag{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);
+    font-size:14px;letter-spacing:.24em;text-transform:uppercase;color:var(--red-hot)}
+  .tag::before{content:"//";color:var(--red);opacity:.8}
+  .tag.win{color:#9dc0ff}.tag.win::before{content:"WIN //";color:#7ba3ff}
+  .tag.lin{color:#ffcf86}.tag.lin::before{content:"LNX //";color:#ffbe5a}
+
+  h1,h2,h3{margin:0;line-height:1.03;font-weight:800;letter-spacing:-.025em}
+  h1{font-size:98px}
+  h2{font-size:58px}
+  h3{font-size:38px;letter-spacing:-.01em}
+  p{line-height:1.5;color:var(--sub);font-size:24px;margin:14px 0}
+  .muted{color:var(--muted)}
+  .big{font-size:29px;color:#cfcfd6}
+  .accent{color:var(--red-hot)}
+  code,.mono{font-family:var(--mono)}
+  .kbd{font-family:var(--mono);font-size:15px;color:#cfcfd6;border:1px solid var(--line-soft);
+    border-bottom-width:3px;border-radius:6px;padding:3px 9px;background:#131318}
+
+  /* entrance animations */
+  .anim{opacity:0;transform:translateY(24px);transition:opacity .65s ease, transform .65s cubic-bezier(.2,.7,.2,1)}
+  .node.active .anim{opacity:1;transform:none}
+  .node.active .anim:nth-child(1){transition-delay:.04s}
+  .node.active .anim:nth-child(2){transition-delay:.12s}
+  .node.active .anim:nth-child(3){transition-delay:.20s}
+  .node.active .anim:nth-child(4){transition-delay:.28s}
+  .node.active .anim:nth-child(5){transition-delay:.36s}
+  .node.active .anim:nth-child(6){transition-delay:.44s}
+  .node.active .anim:nth-child(7){transition-delay:.52s}
+
+  .focus .glow{box-shadow:0 0 0 1px rgba(255,54,68,.5), 0 0 46px rgba(255,54,68,.20)}
+
+  /* terminal */
+  .term{background:#050506;border:1px solid var(--line);border-radius:6px;overflow:hidden;font-family:var(--mono);font-size:20px}
+  .term .bar{display:flex;align-items:center;gap:8px;padding:11px 14px;border-bottom:1px solid var(--line);background:#0c0c10}
+  .term .bar i{width:11px;height:11px;border-radius:50%;background:#2a2a30;display:inline-block}
+  .term .bar i:nth-child(1){background:#ff5f56}.term .bar i:nth-child(2){background:#ffbd2e}.term .bar i:nth-child(3){background:#27c93f}
+  .term .bar span{margin-left:auto;font-size:13px;letter-spacing:.15em;color:var(--muted)}
+  .term .body{padding:20px 22px;line-height:1.7;white-space:pre-wrap}
+  .term .body .c{color:#6de08a}
+  .term .body .d{color:#7f8b99}
+  .term .body .r{color:var(--red-hot)}
+  .term .body .y{color:#ffcf7a}
+  .cursor{display:inline-block;width:10px;height:21px;background:var(--red);vertical-align:-3px;animation:blink 1s steps(1) infinite}
+  @keyframes blink{50%{opacity:0}}
+
+  /* case */
+  .case{width:2320px}
+  .stage{border:1px solid var(--line-soft);border-radius:6px;padding:30px 32px;background:rgba(255,255,255,.014);margin-top:26px;position:relative;
+    min-height:360px;display:flex;flex-direction:column;justify-content:center}
+  .stage h3{margin-bottom:4px}
+  .stage h3 .n{font-family:var(--mono);color:var(--red);margin-right:14px;font-weight:700}
+  .stage.rem{border-color:rgba(55,210,127,.28);background:rgba(55,210,127,.045)}
+  .stage.rem h3 .n{color:var(--ok)}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+
+  /* unquoted path */
+  .pathline{font-family:var(--mono);font-size:22px;margin-top:12px;color:#cfcfd6}
+  .pathline .try{color:#ffcf7a}
+  .probe{display:flex;flex-direction:column;gap:10px;margin-top:18px}
+  .cand{font-family:var(--mono);font-size:19px;padding:11px 15px;border:1px dashed var(--line-soft);border-radius:6px;color:var(--muted);opacity:0;transform:translateX(-16px)}
+  .node.active .cand{animation:candIn .5s forwards}
+  .node.active .cand:nth-child(1){animation-delay:.3s}
+  .node.active .cand:nth-child(2){animation-delay:.95s}
+  .node.active .cand:nth-child(3){animation-delay:1.6s;color:var(--red-hot);border-color:var(--red);border-style:solid;background:rgba(255,54,68,.06)}
+  @keyframes candIn{to{opacity:1;transform:none}}
+  .cand .hit{color:var(--red);font-weight:700}
+
+  /* token theft */
+  .tokenlab{position:relative;height:150px;margin-top:14px}
+  .box{position:absolute;top:44px;padding:14px 18px;border:1px solid var(--line-soft);border-radius:6px;font-family:var(--mono);font-size:18px;background:#0c0c10}
+  .box.svc{left:0;border-color:rgba(120,170,255,.4)}
+  .box.atk{right:0;border-color:var(--red)}
+  .token{position:absolute;top:52px;left:180px;padding:8px 12px;border-radius:6px;background:var(--red-deep);color:#fff;font-family:var(--mono);font-size:15px;box-shadow:0 0 24px rgba(255,54,68,.5)}
+  .node.active .token{animation:fly 2.4s cubic-bezier(.6,0,.3,1) infinite}
+  @keyframes fly{0%{left:170px;opacity:0}15%{opacity:1}70%{left:calc(100% - 360px)}85%{opacity:1}100%{left:calc(100% - 360px);opacity:0}}
+
+  /* suid bit */
+  .perm{font-family:var(--mono);font-size:34px;letter-spacing:6px;margin-top:10px;color:#cfcfd6}
+  .perm .s{color:var(--red)}
+  .node.active .perm .s{animation:pulse 1.4s ease-in-out infinite}
+  @keyframes pulse{0%,100%{text-shadow:0 0 0 rgba(255,54,68,0)}50%{text-shadow:0 0 22px rgba(255,54,68,.95)}}
+
+  /* sudo */
+  .sudoentry{font-family:var(--mono);font-size:20px;padding:11px 15px;border-radius:6px;margin-top:9px;border:1px solid var(--line-soft);color:#cfcfd6}
+  .sudoentry.hot{border-color:var(--red);background:rgba(255,54,68,.06)}
+  .node.active .sudoentry.hot{animation:hot 1.6s ease-in-out infinite}
+  @keyframes hot{0%,100%{box-shadow:0 0 0 rgba(255,54,68,0)}50%{box-shadow:0 0 30px rgba(255,54,68,.32)}}
+  .arrow{color:var(--red);font-family:var(--mono)}
+
+  ul{margin:12px 0;padding-left:22px;color:var(--sub);font-size:22px;line-height:1.6}
+  ul li{margin:7px 0}
+  ul li::marker{color:var(--red)}
+  .demo{display:inline-flex;align-items:center;gap:10px;margin-top:20px;font-family:var(--mono);font-size:18px;
+    color:#ffd7d9;border:1px dashed var(--red);border-radius:6px;padding:11px 16px;background:rgba(255,54,68,.06)}
+  .demo a{color:#fff}
+
+  /* question */
+  .q{width:1900px}
+  .options{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:24px}
+  .opt{text-align:left;font:inherit;font-size:22px;color:var(--ink);cursor:pointer;
+    border:1px solid var(--line-soft);border-radius:6px;padding:20px 22px;background:#0d0d11;transition:.16s;position:relative;overflow:hidden}
+  .opt::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:transparent;transition:.16s}
+  .opt:hover{border-color:var(--red);background:#131319}
+  .opt:hover::before{background:var(--red)}
+  .opt .k{font-family:var(--mono);color:var(--red-hot);margin-right:12px;font-weight:700}
+  .opt.correct,.opt.reveal-correct{border-color:var(--ok);background:rgba(55,210,127,.12)}
+  .opt.correct::before,.opt.reveal-correct::before{background:var(--ok)}
+  .opt.correct .k,.opt.reveal-correct .k{color:var(--ok)}
+  .opt.wrong{border-color:var(--red);background:rgba(255,54,68,.1);opacity:.9}
+  .opt.wrong::before{background:var(--red)}
+
+  /* scoreboard */
+  .board{margin-top:28px;border:1px solid var(--line);border-radius:6px;overflow:hidden;background:#0a0a0d}
+  .board h4{margin:0;padding:14px 18px;font-size:15px;letter-spacing:.2em;text-transform:uppercase;color:var(--red-hot);
+    border-bottom:1px solid var(--line);font-family:var(--mono);display:flex;justify-content:space-between;align-items:center}
+  .board h4 small{color:var(--muted);letter-spacing:.12em;font-size:12px}
+  .board table{width:100%;border-collapse:collapse;font-size:21px}
+  .board td{padding:12px 18px;border-bottom:1px solid rgba(255,255,255,.05)}
+  .board tr:last-child td{border-bottom:0}
+  .board .rank{font-family:var(--mono);color:var(--muted);width:66px}
+  .board .rank.top{color:var(--red)}
+  .board .sc{text-align:right;font-family:var(--mono);font-weight:700;color:#fff;width:72px}
+  .board .ctrl{width:120px;text-align:right}
+  .board .ctrl button{font:inherit;font-size:18px;width:34px;height:34px;border-radius:6px;border:1px solid var(--line-soft);
+    background:#131319;color:var(--ink);cursor:pointer;margin-left:6px;transition:.15s}
+  .board .ctrl button:hover{border-color:var(--red);color:var(--red-hot)}
+  .board .add{display:flex;gap:10px;padding:14px 18px;border-top:1px solid var(--line)}
+  .board .add input{flex:1;font:inherit;font-size:19px;background:#0d0d11;border:1px solid var(--line-soft);border-radius:6px;color:var(--ink);padding:11px 14px}
+  .board .add input:focus{outline:none;border-color:var(--red)}
+  .board .add button{font:inherit;font-size:19px;background:var(--red-deep);border:1px solid var(--red);color:#fff;border-radius:6px;padding:11px 18px;cursor:pointer}
+  .board .add button:hover{background:var(--red-dim)}
+
+  /* HUD */
+  #hud{position:fixed;left:0;right:0;bottom:0;z-index:75;display:flex;align-items:center;justify-content:center;padding:20px;pointer-events:none}
+  #dots{display:flex;gap:7px;background:rgba(10,10,13,.75);border:1px solid var(--line);border-radius:4px;padding:9px 12px;backdrop-filter:blur(8px);pointer-events:auto}
+  #dots b{width:16px;height:4px;border-radius:1px;background:#2b2b33;cursor:pointer;transition:.2s}
+  #dots b.on{background:var(--red);box-shadow:0 0 10px var(--red)}
+  #dots b.win.on{background:#7ba3ff;box-shadow:0 0 10px #7ba3ff}
+  #dots b.lin.on{background:#ffbe5a;box-shadow:0 0 10px #ffbe5a}
+  #brand{position:fixed;top:30px;left:38px;z-index:75;font-family:var(--mono);font-size:14px;letter-spacing:.24em;color:var(--muted)}
+  #brand b{color:var(--red)}
+  #counter{position:fixed;top:30px;right:38px;z-index:75;font-family:var(--mono);font-size:14px;letter-spacing:.15em;color:var(--muted)}
+  #counter b{color:var(--red-hot)}
+</style>
+</head>
+<body>
+
+<canvas id="space"></canvas>
+<div id="grid"></div>
+<div id="fx"></div>
+<div id="frame"><span class="tl"></span><span class="tr"></span><span class="bl"></span><span class="br"></span></div>
+<div id="brand"><b>[GRUPO&nbsp;2]</b>&nbsp;&nbsp;ESCALAMIENTO_DE_PRIVILEGIOS</div>
+<div id="counter"></div>
+
+<div id="viewport">
+  <div id="universe">
+
+    <!-- ============ TITLE ============ -->
+    <section class="node" id="title" style="left:5300px;top:360px;width:2400px">
+      <div class="anim tag">Ofensiva · 2C 2026</div>
+      <h1 class="anim" style="margin-top:24px">Escalamiento<br>de Privilegios</h1>
+      <p class="anim big muted" style="margin-top:26px">De usuario sin privilegios a <span class="accent">SYSTEM</span> / <span class="accent">root</span>.<br>Dos sistemas operativos · cuatro casos prácticos · enumeración y remediación.</p>
+      <p class="anim mono muted" style="font-size:17px;margin-top:30px">Grupo 2 — Windows &amp; Linux &nbsp;·&nbsp; [ Integrantes: _______________ ]</p>
+    </section>
+
+    <!-- ============ INTRO ============ -->
+    <section class="node" id="intro" style="left:5100px;top:1520px;width:2600px">
+      <div class="anim tag">01 · Concepto</div>
+      <h2 class="anim" style="margin-top:20px">¿Qué es escalar privilegios?</h2>
+      <p class="anim big">Es pasar de un acceso limitado a otro de mayor poder dentro del mismo sistema, aprovechando una <span class="accent">configuración, permiso o vulnerabilidad</span>. En Linux la meta suele ser <b>root</b>; en Windows, <b>Administrator o SYSTEM</b>.</p>
+      <div class="anim row" style="margin-top:20px">
+        <div class="stage glow" style="margin-top:0">
+          <h3><span class="n">↑</span>Vertical</h3>
+          <p>Un usuario común pasa a <b>administrador / root</b>. Es lo que cubrimos hoy.</p>
+        </div>
+        <div class="stage" style="margin-top:0">
+          <h3><span class="n">→</span>Horizontal</h3>
+          <p>Se accede a <b>otra cuenta del mismo nivel</b> para usar sus datos o permisos.</p>
+        </div>
+      </div>
+      <p class="anim muted" style="font-size:20px;margin-top:18px">Secuencia habitual: <span class="mono accent">acceso inicial → reconocimiento → escalamiento → objetivo final</span>. Los ejemplos se limitan a máquinas propias de laboratorio; cada caso incluye su defensa.</p>
+    </section>
+
+    <!-- ============ INTRO QUESTION ============ -->
+    <section class="node q" id="q0" style="left:5200px;top:2860px;width:1900px">
+      <div class="anim tag">? · Pregunta al público · Ronda 0</div>
+      <h2 class="anim" style="margin-top:18px">¿Qué describe mejor el escalamiento de privilegios?</h2>
+      <div class="anim options" data-correct="C">
+        <button class="opt"><span class="k">A</span>Interceptar tráfico de red entre dos hosts.</button>
+        <button class="opt"><span class="k">B</span>Adivinar contraseñas por fuerza bruta.</button>
+        <button class="opt"><span class="k">C</span>Obtener un nivel de acceso mayor al asignado abusando de una debilidad.</button>
+        <button class="opt"><span class="k">D</span>Borrar los logs para no dejar rastro.</button>
+      </div>
+      <div class="anim board-mount"></div>
+    </section>
+
+    <!-- ============ CONCEPTOS BASE ============ -->
+    <section class="node" id="base" style="left:5000px;top:4080px;width:2800px">
+      <div class="anim tag">02 · Conceptos base</div>
+      <h2 class="anim" style="margin-top:18px">Identidades, permisos y mínimo privilegio</h2>
+      <p class="anim big">Los usuarios y procesos tienen una identidad; los grupos simplifican la asignación de permisos. Archivos, carpetas y servicios deciden quién puede <b>leer, escribir o ejecutar</b>. La regla defensiva es dar a cada cuenta y programa sólo lo necesario.</p>
+      <div class="anim row">
+        <div class="stage" style="margin-top:12px;min-height:0">
+          <h3><span class="n">LNX</span>Linux</h3>
+          <ul><li><b>root (UID 0)</b>: superusuario.</li><li><b>rwx</b>: permisos para dueño, grupo y otros.</li><li><b>SUID/SGID</b>: ejecución con identidad del dueño o grupo.</li><li><b>sudo</b>: comandos permitidos por reglas.</li><li><b>cron, PATH y capabilities</b>: otros puntos a revisar.</li></ul>
+        </div>
+        <div class="stage" style="margin-top:12px;min-height:0">
+          <h3><span class="n">WIN</span>Windows</h3>
+          <ul><li><b>Administrator y SYSTEM</b>: identidades privilegiadas.</li><li><b>SID y token</b>: identidad y privilegios de cada proceso.</li><li><b>Servicios</b>: pueden correr como SYSTEM.</li><li><b>UAC</b>: confirmación de elevación.</li><li><b>MSI</b>: instalador afectado por AlwaysInstallElevated.</li></ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ METODOLOGIA ============ -->
+    <section class="node" id="method" style="left:5000px;top:5480px;width:2800px">
+      <div class="anim tag">03 · Método</div>
+      <h2 class="anim" style="margin-top:18px">De la enumeración a la comprobación</h2>
+      <div class="anim row">
+        <div class="stage" style="margin-top:18px;min-height:0"><h3><span class="n">01</span>Enumerar</h3><p>Identidad, grupos, permisos, binarios, servicios, tareas, archivos escribibles y versiones. Es la búsqueda del descuido.</p></div>
+        <div class="stage" style="margin-top:18px;min-height:0"><h3><span class="n">02</span>Identificar</h3><p>Elegir un vector concreto y comprobar sus requisitos: por ejemplo, un SUID abusable o una ruta de servicio escribible.</p></div>
+        <div class="stage" style="margin-top:0;min-height:0"><h3><span class="n">03</span>Explotar</h3><p>Ejecutar una acción con los permisos elevados que aporta ese vector, sólo en el laboratorio autorizado.</p></div>
+        <div class="stage" style="margin-top:0;min-height:0"><h3><span class="n">04</span>Comprobar</h3><p>Verificar la identidad del proceso elevado: <code>id</code> y UID efectivo 0 en Linux; <code>whoami</code> dentro del proceso en Windows.</p></div>
+      </div>
+      <p class="anim muted" style="font-size:20px">Las herramientas automáticas ayudan a <b>enumerar</b>; un hallazgo exige revisar permisos y condiciones antes de afirmar que se puede escalar.</p>
+    </section>
+
+    <!-- ============ WINDOWS OVERVIEW ============ -->
+    <section class="node win" id="win" style="left:1400px;top:1520px;width:2200px">
+      <div class="anim tag win">Sistema · Windows</div>
+      <h2 class="anim" style="margin-top:18px">Windows</h2>
+      <p class="anim big">El objetivo es obtener privilegios de <span class="accent">Administrator o NT AUTHORITY\SYSTEM</span>. Dos configuraciones peligrosas:</p>
+      <ul class="anim">
+        <li><b>Caso W1 —</b> Unquoted Service Path (ruta de servicio sin comillas).</li>
+        <li><b>Caso W2 —</b> Política <code>AlwaysInstallElevated</code> activa en ambas ramas del registro.</li>
+      </ul>
+      <p class="anim muted" style="font-size:20px">Enumeración: <span class="mono">winPEAS.exe</span> / <span class="mono">PowerUp.ps1</span> → buscan rutas sin comillas, servicios modificables y la política de instaladores MSI.</p>
+    </section>
+
+    <!-- ============ WINDOWS CASE 1 ============ -->
+    <section class="node win case" id="w1" style="left:200px;top:2740px;width:2320px">
+      <div class="anim tag win" id="w1-head">Caso W1 · Unquoted Service Path</div>
+      <h2 class="anim" style="margin-top:14px">Ruta de servicio sin comillas</h2>
+
+      <div class="anim stage glow" id="w1-vuln">
+        <h3><span class="n">01</span>La debilidad</h3>
+        <p>Un servicio se registra con una ruta <b>con espacios y sin comillas</b>. Windows no sabe dónde termina el ejecutable, así que <b>prueba candidatos</b> de izquierda a derecha:</p>
+        <div class="pathline">C:\Program<span class="try"> Files\Vuln</span><span class="try"> Service\bin\srv.exe</span></div>
+        <div class="probe">
+          <div class="cand">1) C:\Program.exe</div>
+          <div class="cand">2) C:\Program Files\Vuln.exe</div>
+          <div class="cand">3) C:\Program Files\Vuln Service\bin\srv.exe <span class="hit">← intención real</span></div>
+        </div>
+      </div>
+
+      <div class="anim stage" id="w1-exploit">
+        <h3><span class="n">02</span>La explotación</h3>
+        <p>Si el usuario tiene <b>permiso de escritura</b> en la ubicación de un candidato, coloca allí un binario de prueba. Cuando el servicio se inicia de nuevo y corre como SYSTEM, Windows puede ejecutar ese binario.</p>
+        <div class="term glow">
+          <div class="bar"><i></i><i></i><i></i><span>cmd · laboratorio</span></div>
+          <div class="body"><span class="d">C:&gt;</span> wmic service get name,pathname,startmode
+<span class="d">C:&gt;</span> icacls "C:\Program Files"
+  <span class="y">BUILTIN\Users:(OI)(CI)(W)</span>   <span class="d"># escribible ✱</span>
+<span class="d">C:&gt;</span> copy payload.exe "C:\Program Files\Vuln.exe"
+<span class="d">C:&gt;</span> sc stop VulnSvc
+<span class="d">C:&gt;</span> sc start VulnSvc
+<span class="r">[+] Verificar la acción del binario ejecutado como SYSTEM</span><span class="cursor"></span></div>
+        </div>
+      </div>
+
+      <p class="anim muted" style="font-size:19px">No funciona sin escritura en una ubicación candidata ni sin una nueva ejecución del servicio.</p>
+      <div class="anim stage rem" id="w1-rem">
+        <h3><span class="n">🛡</span>Remediación / Hardening</h3>
+        <ul>
+          <li><b>Encomillar</b> siempre el <code>ImagePath</code>: <span class="mono">"C:\...\srv.exe"</span>.</li>
+          <li>Quitar permisos de escritura de usuarios sobre <code>C:\</code> y carpetas de programa.</li>
+          <li>Auditar con <span class="mono">PowerUp / winPEAS</span> y corregir en el hardening base.</li>
+        </ul>
+      </div>
+
+      <div class="anim demo" id="w1-demo">▶ PUNTO DE DEMO — ruta sin comillas + carpeta escribible + reinicio del servicio</div>
+    </section>
+
+    <!-- ============ WINDOWS CASE 1 QUESTION ============ -->
+    <section class="node q win" id="qw1" style="left:400px;top:4620px;width:1900px">
+      <div class="anim tag win">? · Pregunta al público · Ronda 1</div>
+      <h2 class="anim" style="margin-top:18px">¿Qué condición vuelve <i>explotable</i> un Unquoted Service Path?</h2>
+      <div class="anim options" data-correct="B">
+        <button class="opt"><span class="k">A</span>Que el servicio esté detenido permanentemente.</button>
+        <button class="opt"><span class="k">B</span>Permiso de escritura en una carpeta intermedia de la ruta.</button>
+        <button class="opt"><span class="k">C</span>Que el antivirus esté actualizado.</button>
+        <button class="opt"><span class="k">D</span>Que la ruta no tenga espacios.</button>
+      </div>
+      <div class="anim board-mount"></div>
+    </section>
+
+    <!-- ============ WINDOWS CASE 2 ============ -->
+    <section class="node win case" id="w2" style="left:200px;top:6000px;width:2320px">
+      <div class="anim tag win" id="w2-head">Caso W2 · AlwaysInstallElevated</div>
+      <h2 class="anim" style="margin-top:14px">Instaladores MSI con privilegios elevados</h2>
+      <div class="anim stage glow" id="w2-vuln">
+        <h3><span class="n">01</span>La debilidad</h3>
+        <p>La política <code>AlwaysInstallElevated</code> permite instalar paquetes MSI con privilegios elevados. Para que exista el vector, el valor <b>REG_DWORD 0x1</b> debe estar presente en <b>HKCU y HKLM</b>; una sola rama no alcanza.</p>
+        <div class="term"><div class="bar"><i></i><i></i><i></i><span>cmd · enumeración</span></div><div class="body"><span class="d">C:&gt;</span> reg query HKCU\SOFTWARE\Policies\Microsoft\Windows\Installer /v AlwaysInstallElevated
+<span class="d">C:&gt;</span> reg query HKLM\SOFTWARE\Policies\Microsoft\Windows\Installer /v AlwaysInstallElevated
+<span class="y">Ambas respuestas: REG_DWORD 0x1</span></div></div>
+      </div>
+      <div class="anim stage" id="w2-exploit">
+        <h3><span class="n">02</span>Explotación y comprobación</h3>
+        <p>En el laboratorio, un usuario común ejecuta un MSI preparado para realizar una acción privilegiada. La política eleva la <b>instalación</b>; la consola que lanzó <code>msiexec</code> no cambia de identidad.</p>
+        <div class="term glow"><div class="bar"><i></i><i></i><i></i><span>cmd</span></div><div class="body"><span class="d">C:&gt;</span> msiexec /quiet /qn /i C:\ruta\prueba.msi
+<span class="c">[+] Verificar la acción privilegiada del MSI en el equipo de prueba</span></div></div>
+        <p class="muted" style="font-size:19px">No funciona si falta una de las dos claves; un control de seguridad también puede bloquear el paquete.</p>
+      </div>
+      <div class="anim stage rem" id="w2-rem">
+        <h3><span class="n">🛡</span>Remediación / Hardening</h3>
+        <ul><li>Desactivar <code>AlwaysInstallElevated</code> en <b>HKCU y HKLM</b> (valor 0 o ausente).</li><li>Distribuir software mediante herramientas corporativas controladas.</li><li>Auditar ambas ramas del registro, no sólo una.</li></ul>
+      </div>
+      <div class="anim demo" id="w2-demo">▶ PUNTO DE DEMO — dos claves en 1 → MSI elevado; una sola en 1 → no aplica</div>
+    </section>
+
+    <!-- ============ WINDOWS CASE 2 QUESTION ============ -->
+    <section class="node q win" id="qw2" style="left:400px;top:7880px;width:1900px">
+      <div class="anim tag win">? · Pregunta al público · Ronda 2</div>
+      <h2 class="anim" style="margin-top:18px">¿Qué requiere AlwaysInstallElevated para elevar un MSI?</h2>
+      <div class="anim options" data-correct="A">
+        <button class="opt"><span class="k">A</span>El valor en 1 en HKCU y HKLM.</button>
+        <button class="opt"><span class="k">B</span>El valor en 1 sólo en HKCU.</button>
+        <button class="opt"><span class="k">C</span>Una ruta de servicio sin comillas.</button>
+        <button class="opt"><span class="k">D</span>El bit SUID en el MSI.</button>
+      </div>
+      <div class="anim board-mount"></div>
+    </section>
+
+    <!-- ============ LINUX OVERVIEW ============ -->
+    <section class="node lin" id="lin" style="left:9400px;top:1520px;width:2200px">
+      <div class="anim tag lin">Sistema · Linux</div>
+      <h2 class="anim" style="margin-top:18px">Linux</h2>
+      <p class="anim big">El objetivo es pasar de un usuario común a <span class="accent">root (uid=0)</span>. Dos técnicas clásicas:</p>
+      <ul class="anim">
+        <li><b>Caso L1 —</b> Binario <b>SUID</b> abusable (GTFOBins).</li>
+        <li><b>Caso L2 —</b> Mala configuración de <b>sudo</b> (<code>NOPASSWD</code>).</li>
+      </ul>
+      <p class="anim muted" style="font-size:20px">Enumeración: <span class="mono">linPEAS.sh</span> / <span class="mono">find / -perm -4000</span> / <span class="mono">sudo -l</span> → buscan SUID, capabilities, cron y reglas de sudo.</p>
+    </section>
+
+    <!-- ============ LINUX CASE 1 ============ -->
+    <section class="node lin case" id="l1" style="left:8400px;top:2740px;width:2320px">
+      <div class="anim tag lin" id="l1-head">Caso L1 · Binario SUID</div>
+      <h2 class="anim" style="margin-top:14px">SUID root abusable (GTFOBins)</h2>
+
+      <div class="anim stage glow" id="l1-vuln">
+        <h3><span class="n">01</span>La debilidad</h3>
+        <p>Un binario con el bit <b>SUID</b> se ejecuta con los permisos de su <b>dueño</b>. Si el dueño es <b>root</b> y el binario permite ejecutar comandos, obtenemos un shell root.</p>
+        <div class="perm">-rw<span class="s">s</span>r-xr-x &nbsp; root root &nbsp; /usr/bin/find</div>
+        <p class="muted" style="font-size:19px">La <span class="accent mono">s</span> en el bloque del dueño = SUID activo. <code>find</code> con SUID root es un ejemplo deliberado de laboratorio.</p>
+      </div>
+
+      <div class="anim stage" id="l1-exploit">
+        <h3><span class="n">02</span>La explotación</h3>
+        <p>Buscamos SUID inusuales y consultamos <b>GTFOBins</b> para el "escape" del binario:</p>
+        <div class="term glow">
+          <div class="bar"><i></i><i></i><i></i><span>bash</span></div>
+          <div class="body"><span class="d">$</span> find / -perm -4000 -type f 2&gt;/dev/null
+<span class="y">/usr/bin/find</span>
+<span class="d">$</span> find . -exec /bin/sh -p \; -quit
+<span class="c"># </span><span class="r">id → euid=0(root)</span><span class="cursor"></span></div>
+        </div>
+      </div>
+
+      <p class="anim muted" style="font-size:19px">La opción <code>-p</code> conserva el UID efectivo elevado; sin ella, la shell puede descartarlo. Un SUID sin escape tampoco da una vía directa.</p>
+      <div class="anim stage rem" id="l1-rem">
+        <h3><span class="n">🛡</span>Remediación / Hardening</h3>
+        <ul>
+          <li>Quitar el bit SUID innecesario: <span class="mono">chmod u-s /usr/bin/find</span>.</li>
+          <li>Inventariar SUID y compararlos contra una baseline conocida.</li>
+          <li>Preferir <b>capabilities</b> para poderes puntuales; usar <span class="mono">nosuid</span> donde corresponda.</li>
+        </ul>
+      </div>
+
+      <div class="anim demo" id="l1-demo">▶ PUNTO DE DEMO — comparar el UID efectivo con y sin <code>-p</code></div>
+    </section>
+
+    <!-- ============ LINUX CASE 1 QUESTION ============ -->
+    <section class="node q lin" id="ql1" style="left:8600px;top:4620px;width:1900px">
+      <div class="anim tag lin">? · Pregunta al público · Ronda 3</div>
+      <h2 class="anim" style="margin-top:18px">¿Qué permite un binario SUID cuyo dueño es root?</h2>
+      <div class="anim options" data-correct="D">
+        <button class="opt"><span class="k">A</span>Cifrar el disco automáticamente.</button>
+        <button class="opt"><span class="k">B</span>Nada, SUID es sólo informativo.</button>
+        <button class="opt"><span class="k">C</span>Acelerar la ejecución del binario.</button>
+        <button class="opt"><span class="k">D</span>Ejecutarse con permisos de root, permitiendo un escape a shell.</button>
+      </div>
+      <div class="anim board-mount"></div>
+    </section>
+
+    <!-- ============ LINUX CASE 2 ============ -->
+    <section class="node lin case" id="l2" style="left:8400px;top:6000px;width:2320px">
+      <div class="anim tag lin" id="l2-head">Caso L2 · sudo mal configurado</div>
+      <h2 class="anim" style="margin-top:14px">Reglas de sudo permisivas</h2>
+
+      <div class="anim stage glow" id="l2-vuln">
+        <h3><span class="n">01</span>La debilidad</h3>
+        <p>Una regla en <code>/etc/sudoers</code> permite ejecutar un programa como root. El riesgo está en autorizar uno que abre una shell o ejecuta comandos; <b>NOPASSWD</b> permite hacerlo sin contraseña.</p>
+        <div class="sudoentry">user ALL=(ALL) /usr/bin/apt-get</div>
+        <div class="sudoentry hot">user ALL=(ALL) <b>NOPASSWD:</b> /usr/bin/vim &nbsp;<span class="arrow">← peligroso</span></div>
+      </div>
+
+      <div class="anim stage" id="l2-exploit">
+        <h3><span class="n">02</span>La explotación</h3>
+        <p>Listamos permisos con <span class="mono">sudo -l</span> y usamos el escape del binario permitido (GTFOBins):</p>
+        <div class="term glow">
+          <div class="bar"><i></i><i></i><i></i><span>bash</span></div>
+          <div class="body"><span class="d">$</span> sudo -l
+  <span class="y">(ALL) NOPASSWD: /usr/bin/vim</span>
+<span class="d">$</span> sudo vim -c ':!/bin/sh'
+<span class="c"># </span><span class="r">whoami → root</span><span class="cursor"></span></div>
+        </div>
+      </div>
+
+      <p class="anim muted" style="font-size:19px">Sin un programa con escape, no hay salto directo. Si la regla exige contraseña y no la conocemos, sudo detiene el intento.</p>
+      <div class="anim stage rem" id="l2-rem">
+        <h3><span class="n">🛡</span>Remediación / Hardening</h3>
+        <ul>
+          <li>Principio de <b>mínimo privilegio</b> en sudoers; evitar <code>NOPASSWD</code>.</li>
+          <li>Nunca permitir binarios con escape (<span class="mono">vim, find, less, awk</span>) vía sudo.</li>
+          <li>Para editar archivos, usar <code>sudoedit</code>. Validar reglas con <code>visudo</code> y auditarlas periódicamente.</li>
+        </ul>
+      </div>
+
+      <div class="anim demo" id="l2-demo">▶ PUNTO DE DEMO — regla NOPASSWD con editor frente a comando limitado</div>
+    </section>
+
+    <!-- ============ LINUX CASE 2 QUESTION ============ -->
+    <section class="node q lin" id="ql2" style="left:8600px;top:7880px;width:1900px">
+      <div class="anim tag lin">? · Pregunta al público · Ronda 4</div>
+      <h2 class="anim" style="margin-top:18px">¿Cuál entrada de sudoers es más peligrosa?</h2>
+      <div class="anim options" data-correct="C">
+        <button class="opt"><span class="k">A</span><code>user ALL=(ALL) /usr/bin/id</code></button>
+        <button class="opt"><span class="k">B</span>Ninguna entrada de sudo es peligrosa.</button>
+        <button class="opt"><span class="k">C</span><code>user ALL=(ALL) NOPASSWD: /usr/bin/vim</code></button>
+        <button class="opt"><span class="k">D</span><code>user localhost=(user) /bin/echo</code></button>
+      </div>
+      <div class="anim board-mount"></div>
+    </section>
+
+    <!-- ============ HERRAMIENTAS ============ -->
+    <section class="node" id="tools" style="left:5000px;top:8900px;width:2800px">
+      <div class="anim tag">04 · Enumeración automática</div>
+      <h2 class="anim" style="margin-top:18px">Qué busca cada herramienta</h2>
+      <div class="anim row">
+        <div class="stage" style="margin-top:16px;min-height:0"><h3><span class="n">LNX</span>LinPEAS</h3><p>SUID/SGID, reglas de sudo, cron, PATH, permisos de escritura, capabilities, versiones y posibles credenciales expuestas.</p></div>
+        <div class="stage" style="margin-top:16px;min-height:0"><h3><span class="n">WIN</span>WinPEAS</h3><p>Servicios y rutas débiles, AlwaysInstallElevated, privilegios del token, tareas modificables y credenciales guardadas.</p></div>
+      </div>
+      <div class="anim stage" style="min-height:0"><h3><span class="n">PS</span>PowerUp</h3><p><code>Invoke-AllChecks</code> revisa servicios modificables, rutas sin comillas, AlwaysInstallElevated y secuestro de DLL. Puede sugerir comandos para validar hallazgos.</p></div>
+      <p class="anim muted" style="font-size:20px">En la demo: mostrar primero <code>sudo -l</code> o las dos consultas <code>reg query</code>; luego usar la herramienta para confirmar el mismo hallazgo.</p>
+    </section>
+
+    <!-- ============ CLOSING ============ -->
+    <section class="node" id="end" style="left:5300px;top:10600px;width:2400px">
+      <div class="anim tag">Cierre · Remediación</div>
+      <h2 class="anim" style="margin-top:16px">Defender cada vector</h2>
+      <ul class="anim" style="font-size:24px">
+        <li><b>SUID:</b> quitar el bit cuando no es necesario; inventariar binarios y preferir capabilities puntuales.</li>
+        <li><b>sudo:</b> permitir sólo comandos acotados, evitar editores con escape y usar <code>sudoedit</code>.</li>
+        <li><b>Servicio Windows:</b> encomillar la ruta y restringir escritura en las carpetas candidatas.</li>
+        <li><b>AlwaysInstallElevated:</b> desactivar la política en HKCU y HKLM; distribuir software de forma controlada.</li>
+      </ul>
+      <p class="anim big">En todos los casos: <span class="accent">mínimo privilegio, actualizaciones y auditoría periódica</span>.</p>
+      <p class="anim big accent" style="margin-top:22px">¿Preguntas?</p>
+      <p class="anim mono muted" style="font-size:15px">Grupo 2 · Seguridad Ofensiva 2C 2026</p>
+    </section>
+
+  </div>
+</div>
+
+<div id="hud"><div id="dots"></div></div>
+
+<script>
+const STEPS = [
+  {sel:'#title'},
+  {sel:'#intro'},
+  {sel:'#intro .row', pad:180},
+  {sel:'#q0'},
+  {sel:'#base'},
+  {sel:'#method'},
+
+  {sel:'#win', pad:260},
+  {sel:'#w1', pad:820},
+  {sel:'#w1-vuln', pad:110},
+  {sel:'#w1-exploit', pad:110},
+  {sel:'#w1-rem', pad:110},
+  {sel:'#w1-demo', pad:300},
+  {sel:'#qw1'},
+
+  {sel:'#w2', pad:820},
+  {sel:'#w2-vuln', pad:110},
+  {sel:'#w2-exploit', pad:110},
+  {sel:'#w2-rem', pad:110},
+  {sel:'#qw2'},
+
+  {sel:'#lin', pad:260},
+  {sel:'#l1', pad:820},
+  {sel:'#l1-vuln', pad:110},
+  {sel:'#l1-exploit', pad:110},
+  {sel:'#l1-rem', pad:110},
+  {sel:'#ql1'},
+
+  {sel:'#l2', pad:820},
+  {sel:'#l2-vuln', pad:110},
+  {sel:'#l2-exploit', pad:110},
+  {sel:'#l2-rem', pad:110},
+  {sel:'#ql2'},
+
+  {sel:'#tools'},
+  {sel:'#end'},
+];
+
+const universe = document.getElementById('universe');
+const viewport = document.getElementById('viewport');
+let idx = 0;
+
+/* inyectar barrido holográfico en cada tarjeta */
+document.querySelectorAll('.node').forEach(n=>{
+  const s=document.createElement('div'); s.className='sweep'; n.prepend(s);
+});
+
+/* ---------- Cámara animada por JS (para sincronizar el warp) ---------- */
+const cam = {x:6500,y:700,s:0.3};        // estado actual
+const target = {x:6500,y:700,s:0.3};     // objetivo
+let camInit = false;
+
+function computeTarget(i){
+  const step = STEPS[i];
+  const el = document.querySelector(step.sel);
+  if(!el) return null;
+  const node = el.closest('.node');
+  let left = el.offsetLeft, top = el.offsetTop, w = el.offsetWidth, h = el.offsetHeight;
+  if(el !== node){ left += node.offsetLeft; top += node.offsetTop; }
+  const pad = step.pad || 200;
+  const vw = viewport.clientWidth, vh = viewport.clientHeight;
+  let scale = Math.min(vw/(w+pad*2), vh/(h+pad*2), 1.7);
+  return {x:left+w/2, y:top+h/2, s:scale, node, el};
+}
+
+function go(i, instant=false){
+  idx = Math.max(0, Math.min(STEPS.length-1, i));
+  const t = computeTarget(idx);
+  if(!t) return;
+  document.querySelectorAll('.node').forEach(n=>n.classList.toggle('active', n===t.node));
+  document.querySelectorAll('.focus').forEach(n=>n.classList.remove('focus'));
+  t.el.classList.add('focus');
+  target.x=t.x; target.y=t.y; target.s=t.s;
+  if(instant || !camInit){ cam.x=t.x; cam.y=t.y; cam.s=t.s; camInit=true; }
+  updateHud();
+}
+
+/* ---------- Motor galáctico (canvas) ---------- */
+const space = document.getElementById('space');
+const gtx = space.getContext('2d');
+let DPR = Math.min(window.devicePixelRatio||1, 2);
+let SW=0, SH=0;
+const stars = [], nebulae = [];
+
+function seedField(){
+  stars.length=0; nebulae.length=0;
+  // stars sembradas en un area mayor que el universo
+  const N = 720;
+  for(let i=0;i<N;i++){
+    const depth = Math.pow(Math.random(),1.6)*0.8 + 0.08; // 0.08..0.88
+    stars.push({
+      x:-2200 + Math.random()*17000,
+      y:-2200 + Math.random()*13000,
+      p:depth,
+      r:(Math.random()*1.2+0.3)*(0.5+depth),
+      tw:Math.random()*Math.PI*2,
+      tws:0.6+Math.random()*1.8,
+      red:Math.random()<0.16,
+      px:0,py:0,seen:false
+    });
+  }
+  // nebulosas galacticas (rojo dominante + acentos violeta)
+  const cols=[[255,50,64],[190,20,60],[120,20,120],[255,90,70],[90,10,80]];
+  const spots=[[6500,700],[1600,3400],[9500,3400],[1400,7000],[9600,7000],[6400,7200],[5400,2400]];
+  spots.forEach((s,k)=>{
+    const c=cols[k%cols.length];
+    nebulae.push({x:s[0],y:s[1],p:0.34+Math.random()*0.12,rad:1300+Math.random()*900,
+      c,a:0.16+Math.random()*0.1,drift:Math.random()*Math.PI*2});
+  });
+}
+
+function resizeSpace(){
+  DPR = Math.min(window.devicePixelRatio||1, 2);
+  SW = window.innerWidth; SH = window.innerHeight;
+  space.width = SW*DPR; space.height = SH*DPR;
+  space.style.width = SW+'px'; space.style.height = SH+'px';
+  gtx.setTransform(DPR,0,0,DPR,0,0);
+}
+
+let last=performance.now();
+function frame(now){
+  const dt = Math.min((now-last)/1000, 0.05); last=now;
+  const time = now/1000;
+
+  // easing exponencial hacia el objetivo (movimiento flotante)
+  const k = 1 - Math.pow(0.0025, dt); // ~lerp suave e independiente de fps
+  cam.x += (target.x-cam.x)*k;
+  cam.y += (target.y-cam.y)*k;
+  cam.s += (target.s-cam.s)*k;
+
+  // aplicar transform al universo DOM
+  const tx = SW/2 - cam.x*cam.s;
+  const ty = SH/2 - cam.y*cam.s;
+  universe.style.transform = `translate3d(${tx}px, ${ty}px, 0) scale(${cam.s})`;
+
+  render(time);
+  requestAnimationFrame(frame);
+}
+
+function render(time){
+  gtx.clearRect(0,0,SW,SH);
+  const cx=SW/2, cy=SH/2;
+
+  // nebulosas (aditivas)
+  gtx.globalCompositeOperation='lighter';
+  for(const n of nebulae){
+    const sx = cx + (n.x - cam.x)*cam.s*n.p + Math.sin(time*0.05+n.drift)*20;
+    const sy = cy + (n.y - cam.y)*cam.s*n.p + Math.cos(time*0.04+n.drift)*20;
+    const R = n.rad*cam.s*n.p*(1+0.06*Math.sin(time*0.2+n.drift));
+    if(sx<-R||sx>SW+R||sy<-R||sy>SH+R) continue;
+    const g=gtx.createRadialGradient(sx,sy,0,sx,sy,R);
+    g.addColorStop(0,`rgba(${n.c[0]},${n.c[1]},${n.c[2]},${n.a})`);
+    g.addColorStop(.5,`rgba(${n.c[0]},${n.c[1]},${n.c[2]},${n.a*0.35})`);
+    g.addColorStop(1,'rgba(0,0,0,0)');
+    gtx.fillStyle=g; gtx.beginPath(); gtx.arc(sx,sy,R,0,7); gtx.fill();
+  }
+
+  // estrellas + estelas de warp
+  for(const s of stars){
+    const sc = cam.s*s.p;
+    const sx = cx + (s.x - cam.x)*sc;
+    const sy = cy + (s.y - cam.y)*sc;
+    if(sx<-40||sx>SW+40||sy<-40||sy>SH+40){ s.seen=false; continue; }
+    // estela si se movio mucho respecto al frame anterior (warp)
+    if(s.seen){
+      const dx=sx-s.px, dy=sy-s.py; const d=Math.hypot(dx,dy);
+      if(d>4){
+        const a=Math.min(0.5, d/260);
+        gtx.strokeStyle = s.red?`rgba(255,90,100,${a})`:`rgba(210,225,255,${a})`;
+        gtx.lineWidth=Math.max(0.5, s.r*sc*0.6);
+        gtx.beginPath(); gtx.moveTo(s.px,s.py); gtx.lineTo(sx,sy); gtx.stroke();
+      }
+    }
+    const tw=0.55+0.45*Math.sin(time*s.tws+s.tw);
+    const rr=Math.max(0.4, s.r*(0.6+sc));
+    const bright=Math.min(1, tw*(0.5+s.p));
+    if(s.red){
+      gtx.fillStyle=`rgba(255,${80+Math.floor(60*tw)},95,${bright})`;
+    }else{
+      gtx.fillStyle=`rgba(${210+Math.floor(45*tw)},${222+Math.floor(30*tw)},255,${bright})`;
+    }
+    gtx.beginPath(); gtx.arc(sx,sy,rr,0,7); gtx.fill();
+    // glow para estrellas grandes cercanas
+    if(rr>1.6){
+      gtx.globalCompositeOperation='lighter';
+      const g=gtx.createRadialGradient(sx,sy,0,sx,sy,rr*6);
+      const col=s.red?'255,80,95':'170,200,255';
+      g.addColorStop(0,`rgba(${col},${0.28*bright})`); g.addColorStop(1,'rgba(0,0,0,0)');
+      gtx.fillStyle=g; gtx.beginPath(); gtx.arc(sx,sy,rr*6,0,7); gtx.fill();
+      gtx.globalCompositeOperation='source-over';
+    }
+    s.px=sx; s.py=sy; s.seen=true;
+  }
+  gtx.globalCompositeOperation='source-over';
+}
+
+const dotsEl = document.getElementById('dots');
+STEPS.forEach((s,i)=>{
+  const b=document.createElement('b');
+  const node = document.querySelector(s.sel).closest('.node');
+  if(node.classList.contains('win')) b.classList.add('win');
+  if(node.classList.contains('lin')) b.classList.add('lin');
+  b.onclick=()=>go(i);
+  dotsEl.appendChild(b);
+});
+function updateHud(){
+  [...dotsEl.children].forEach((b,i)=>b.classList.toggle('on', i===idx));
+  document.getElementById('counter').innerHTML =
+    '<b>'+String(idx+1).padStart(2,'0')+'</b> / '+String(STEPS.length).padStart(2,'0');
+}
+
+window.addEventListener('keydown', e=>{
+  if(e.target.tagName==='INPUT') return;
+  if(e.key==='ArrowRight'||e.key==='ArrowDown'||e.key===' '||e.key==='PageDown'){ e.preventDefault(); go(idx+1); }
+  else if(e.key==='ArrowLeft'||e.key==='ArrowUp'||e.key==='PageUp'){ e.preventDefault(); go(idx-1); }
+  else if(e.key==='Home'){ go(0); }
+  else if(e.key==='End'){ go(STEPS.length-1); }
+});
+window.addEventListener('resize', ()=>{ resizeSpace(); const t=computeTarget(idx); if(t){target.x=t.x;target.y=t.y;target.s=t.s;} });
+
+document.querySelectorAll('.options').forEach(group=>{
+  const correct = group.dataset.correct;
+  group.querySelectorAll('.opt').forEach(btn=>{
+    const key = btn.querySelector('.k').textContent.trim();
+    btn.addEventListener('click', ()=>{
+      group.querySelectorAll('.opt').forEach(b=>{
+        if(b.querySelector('.k').textContent.trim()===correct) b.classList.add('reveal-correct');
+      });
+      btn.classList.add(key===correct?'correct':'wrong');
+    });
+  });
+});
+
+/* Scoreboard compartido (localStorage) */
+const LSKEY='g2-scoreboard';
+let players = JSON.parse(localStorage.getItem(LSKEY) || 'null')
+  || [{name:'Equipo A',score:0},{name:'Equipo B',score:0}];
+function save(){ localStorage.setItem(LSKEY, JSON.stringify(players)); }
+function escapeHtml(s){return s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+function boardHTML(){
+  const sorted=[...players].map((p,i)=>({...p,_i:i})).sort((a,b)=>b.score-a.score);
+  const rows=sorted.map((p,rank)=>`
+    <tr>
+      <td class="rank ${rank===0?'top':''}">${rank===0?'★':'#'+(rank+1)}</td>
+      <td>${escapeHtml(p.name)}</td>
+      <td class="sc">${p.score}</td>
+      <td class="ctrl">
+        <button data-act="minus" data-i="${p._i}">−</button>
+        <button data-act="plus" data-i="${p._i}">+</button>
+      </td>
+    </tr>`).join('');
+  return `
+    <div class="board">
+      <h4>Mejores puntuaciones <small>actualiza en vivo</small></h4>
+      <table><tbody>${rows}</tbody></table>
+      <div class="add">
+        <input type="text" placeholder="Nombre del participante / equipo">
+        <button data-act="add">Agregar</button>
+      </div>
+    </div>`;
+}
+function renderBoards(){ document.querySelectorAll('.board-mount').forEach(m=>{ m.innerHTML=boardHTML(); }); }
+renderBoards();
+document.addEventListener('click', e=>{
+  const b=e.target.closest('button[data-act]');
+  if(!b) return;
+  const act=b.dataset.act;
+  if(act==='add'){
+    const input=b.previousElementSibling;
+    const name=(input.value||'').trim();
+    if(name){ players.push({name,score:0}); save(); renderBoards(); }
+    return;
+  }
+  const i=parseInt(b.dataset.i,10);
+  if(act==='plus'){ players[i].score++; save(); renderBoards(); }
+  if(act==='minus'){ players[i].score=Math.max(0,players[i].score-1); save(); renderBoards(); }
+});
+
+/* arranque del motor galáctico */
+resizeSpace();
+seedField();
+go(0, true);
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>
