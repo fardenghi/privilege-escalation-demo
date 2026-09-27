@@ -37,6 +37,11 @@ COPY tools/linpeas.sh /home/alumno/linpeas.sh
 RUN chmod +x /home/alumno/linpeas.sh && \
     chown alumno:alumno /home/alumno/linpeas.sh
 
+# Crear una configuración errónea de SUDOers para poder ejecutar vim con sudo (como root -> escape con :terminal)
+RUN echo "alumno ALL=(ALL) NOPASSWD: /usr/bin/vim" > /etc/sudoers.d/supersafeuser \
+    && chmod 0440 /etc/sudoers.d/supersafeuser
+
+
 # Establecer usuario y directorio de trabajo por defecto
 USER alumno
 WORKDIR /home/alumno
