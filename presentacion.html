@@ -423,6 +423,18 @@
       <div class="anim demo" id="l1-demo">▶ PUNTO DE DEMO — comparar el UID efectivo con y sin <code>-p</code></div>
     </section>
 
+    <!-- ============ LINUX CASE 1 QUESTION (SUID) ============ -->
+    <section class="node q lin" id="ql1" style="left:8600px;top:4620px;width:1900px">
+      <div class="anim tag lin">Pregunta al público · SUID</div>
+      <h2 class="anim" style="margin-top:18px">¿Cómo piensan que se resuelve esta vulnerabilidad?</h2>
+      <div class="anim options" data-correct="A,B,C,D">
+        <button class="opt"><span class="k">A</span>Quitar el bit SUID si no es necesario: <code>chmod u-s /usr/bin/find</code>.</button>
+        <button class="opt"><span class="k">B</span>Monitorear los binarios SUID y compararlos periódicamente con una línea base conocida.</button>
+        <button class="opt"><span class="k">C</span>Preferir <code>capabilities</code> para otorgar permisos puntuales.</button>
+        <button class="opt"><span class="k">D</span>Usar <code>nosuid</code> donde corresponda.</button>
+      </div>
+    </section>
+
     <!-- ============ LINUX CASE 2 ============ -->
     <section class="node lin case" id="l2" style="left:8400px;top:6000px;width:2320px">
       <div class="anim tag lin" id="l2-head" style="font-size:26px">Caso L2 · sudo mal configurado</div>
@@ -486,6 +498,42 @@
       <p class="anim mono muted" style="font-size:24px;margin-top:40px">Grupo 2 · Seguridad Ofensiva 2C 2026</p>
     </section>
 
+    <!-- ============ TRIVIA FINAL 1 ============ -->
+    <section class="node q" id="trivia1" style="left:1600px;top:9600px;width:1900px">
+      <div class="anim tag">Trivia final · 1 de 3</div>
+      <h2 class="anim" style="margin-top:18px">¿Cuál es el objetivo de escalar privilegios?</h2>
+      <div class="anim options" data-correct="B">
+        <button class="opt"><span class="k">A</span>Interceptar el tráfico de red.</button>
+        <button class="opt"><span class="k">B</span>Pasar a un acceso con más poder en la misma máquina.</button>
+        <button class="opt"><span class="k">C</span>Borrar los registros del sistema.</button>
+        <button class="opt"><span class="k">D</span>Adivinar contraseñas por fuerza bruta.</button>
+      </div>
+    </section>
+
+    <!-- ============ TRIVIA FINAL 2 ============ -->
+    <section class="node q" id="trivia2" style="left:1600px;top:10900px;width:1900px">
+      <div class="anim tag">Trivia final · 2 de 3</div>
+      <h2 class="anim" style="margin-top:18px">¿En qué paso se concentra la mayor parte del trabajo?</h2>
+      <div class="anim options" data-correct="C">
+        <button class="opt"><span class="k">A</span>En la explotación.</button>
+        <button class="opt"><span class="k">B</span>En la comprobación final.</button>
+        <button class="opt"><span class="k">C</span>En el reconocimiento.</button>
+        <button class="opt"><span class="k">D</span>En reiniciar la máquina.</button>
+      </div>
+    </section>
+
+    <!-- ============ TRIVIA FINAL 3 ============ -->
+    <section class="node q" id="trivia3" style="left:1600px;top:12200px;width:1900px">
+      <div class="anim tag">Trivia final · 3 de 3</div>
+      <h2 class="anim" style="margin-top:18px">¿Qué es un vector de escalada?</h2>
+      <div class="anim options" data-correct="B">
+        <button class="opt"><span class="k">A</span>La cuenta root o SYSTEM.</button>
+        <button class="opt"><span class="k">B</span>La vía concreta para subir de nivel.</button>
+        <button class="opt"><span class="k">C</span>Una herramienta de enumeración automática.</button>
+        <button class="opt"><span class="k">D</span>Un archivo de registro del sistema.</button>
+      </div>
+    </section>
+
     <!-- ============ OUTRO ============ -->
     <section class="node" id="outro" style="left:5300px;top:12700px;width:2600px;padding:110px 120px 60px">
       <div class="anim tag" style="font-size:30px">Cierre · 2C 2026</div>
@@ -524,6 +572,7 @@ const STEPS = [
   {sel:'#l1-vuln', pad:110},
   {sel:'#l1-exploit', pad:110},
   {sel:'#l1-demo', pad:300},
+  {sel:'#ql1'},
 
   {sel:'#l2', pad:820},
   {sel:'#l2-vuln', pad:110},
@@ -533,6 +582,9 @@ const STEPS = [
 
   {sel:'#tools'},
   {sel:'#end'},
+  {sel:'#trivia1'},
+  {sel:'#trivia2'},
+  {sel:'#trivia3'},
   {sel:'#outro'},
 ];
 
