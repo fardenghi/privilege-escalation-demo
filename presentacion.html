@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Grupo 2 · Escalamiento de Privilegios</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
   :root{
     --bg:#060608;
@@ -49,7 +52,7 @@
 
   /* ---------- Camera / Universe ---------- */
   #viewport{position:fixed;inset:0;overflow:hidden;z-index:2}
-  #universe{position:absolute;top:0;left:0;width:13000px;height:12400px;transform-origin:0 0}
+  #universe{position:absolute;top:0;left:0;width:13000px;height:14200px;transform-origin:0 0}
 
   .node{position:absolute;padding:40px 46px;
     background:linear-gradient(180deg, rgba(13,13,16,.94), rgba(8,8,11,.94));
@@ -137,9 +140,9 @@
   .probe{display:flex;flex-direction:column;gap:10px;margin-top:18px}
   .cand{font-family:var(--mono);font-size:19px;padding:11px 15px;border:1px dashed var(--line-soft);border-radius:6px;color:var(--muted);opacity:0;transform:translateX(-16px)}
   .node.active .cand{animation:candIn .5s forwards}
-  .node.active .cand:nth-child(1){animation-delay:.3s}
+  .node.active .cand:nth-child(1){animation-delay:.3s;color:var(--red-hot);border-color:var(--red);border-style:solid;background:rgba(255,54,68,.06)}
   .node.active .cand:nth-child(2){animation-delay:.95s}
-  .node.active .cand:nth-child(3){animation-delay:1.6s;color:var(--red-hot);border-color:var(--red);border-style:solid;background:rgba(255,54,68,.06)}
+  .node.active .cand:nth-child(3){animation-delay:1.6s}
   @keyframes candIn{to{opacity:1;transform:none}}
   .cand .hit{color:var(--red);font-weight:700}
 
@@ -234,29 +237,29 @@
   <div id="universe">
 
     <!-- ============ TITLE ============ -->
-    <section class="node" id="title" style="left:5300px;top:360px;width:2400px">
-      <div class="anim tag">Ofensiva · 2C 2026</div>
-      <h1 class="anim" style="margin-top:24px">Escalamiento<br>de Privilegios</h1>
-      <p class="anim big muted" style="margin-top:26px">De usuario sin privilegios a <span class="accent">SYSTEM</span> / <span class="accent">root</span>.<br>Dos sistemas operativos · cuatro casos prácticos · enumeración y remediación.</p>
-      <p class="anim mono muted" style="font-size:17px;margin-top:30px">Grupo 2 — Windows &amp; Linux &nbsp;·&nbsp; [ Integrantes: _______________ ]</p>
+    <section class="node" id="title" style="left:4475px;top:360px;width:4350px;padding:80px 120px">
+      <div class="anim tag" style="font-size:36px">Ofensiva · 2C 2026</div>
+      <h1 class="anim" style="margin-top:160px;font-size:190px">Escalamiento de Privilegios</h1>
+      <p class="anim big muted" style="margin-top:40px;font-size:60px;margin-left:8px;">De usuarios sin privilegios a <span class="accent">SYSTEM</span>/<span class="accent">root</span>. 2 sistemas operativos, 4 casos prácticos.</p>
+      <p class="anim mono muted" style="font-size:38px;margin-top:210px">Grupo 2 — Windows &amp; Linux &nbsp;·&nbsp; [ Integrantes: _______________ ]</p>
     </section>
 
     <!-- ============ INTRO ============ -->
     <section class="node" id="intro" style="left:5100px;top:1520px;width:2600px">
-      <div class="anim tag">01 · Concepto</div>
-      <h2 class="anim" style="margin-top:20px">¿Qué es escalar privilegios?</h2>
-      <p class="anim big">Es pasar de un acceso limitado a otro de mayor poder dentro del mismo sistema, aprovechando una <span class="accent">configuración, permiso o vulnerabilidad</span>. En Linux la meta suele ser <b>root</b>; en Windows, <b>Administrator o SYSTEM</b>.</p>
-      <div class="anim row" style="margin-top:20px">
+      <div class="anim tag" style="font-size:28px">01 · Concepto</div>
+      <h2 class="anim" style="margin-top:60px;font-size:70px">¿Qué es escalar privilegios?</h2>
+      <p class="anim big" style="font-size:36px;margin-top:50px;margin-bottom:50px">Es pasar de un acceso limitado a otro de mayor poder dentro del mismo sistema, aprovechando una <span class="accent">configuración, permiso o vulnerabilidad</span>. En Linux la meta suele ser <b>root</b>; en Windows, <b>Administrator o SYSTEM</b>.</p>
+      <div class="anim row" style="margin-top:0px">
         <div class="stage glow" style="margin-top:0">
-          <h3><span class="n">↑</span>Vertical</h3>
-          <p>Un usuario común pasa a <b>administrador / root</b>. Es lo que cubrimos hoy.</p>
+          <h3 style="font-size:44px"><span class="n">↑</span>Vertical</h3>
+          <p style="font-size:30px">Un usuario común pasa a <b>administrador / root</b>. Es lo que cubrimos hoy.</p>
         </div>
         <div class="stage" style="margin-top:0">
-          <h3><span class="n">→</span>Horizontal</h3>
-          <p>Se accede a <b>otra cuenta del mismo nivel</b> para usar sus datos o permisos.</p>
+          <h3 style="font-size:44px"><span class="n">→</span>Horizontal</h3>
+          <p style="font-size:30px">Se accede a <b>otra cuenta del mismo nivel</b> para usar sus datos o permisos.</p>
         </div>
       </div>
-      <p class="anim muted" style="font-size:20px;margin-top:18px">Secuencia habitual: <span class="mono accent">acceso inicial → reconocimiento → escalamiento → objetivo final</span>. Los ejemplos se limitan a máquinas propias de laboratorio; cada caso incluye su defensa.</p>
+      <p class="anim muted" style="font-size:34px;margin-top:70px">Secuencia habitual: <span class="mono accent" style="margin-left:20px;">acceso inicial → reconocimiento → escalamiento → objetivo final</span></p>
     </section>
 
     <!-- ============ INTRO QUESTION ============ -->
@@ -274,66 +277,66 @@
 
     <!-- ============ CONCEPTOS BASE ============ -->
     <section class="node" id="base" style="left:5000px;top:4080px;width:2800px">
-      <div class="anim tag">02 · Conceptos base</div>
-      <h2 class="anim" style="margin-top:18px">Identidades, permisos y mínimo privilegio</h2>
-      <p class="anim big">Los usuarios y procesos tienen una identidad; los grupos simplifican la asignación de permisos. Archivos, carpetas y servicios deciden quién puede <b>leer, escribir o ejecutar</b>. La regla defensiva es dar a cada cuenta y programa sólo lo necesario.</p>
-      <div class="anim row">
+      <div class="anim tag" style="font-size:28px">02 · Conceptos base</div>
+      <h2 class="anim" style="margin-top:60px;font-size:70px">Identidades, permisos y mínimo privilegio</h2>
+      <p class="anim big" style="font-size:36px;margin-top:50px;margin-bottom:50px">Archivos, carpetas y servicios deciden quién puede <b>leer, escribir o ejecutar</b>. <span class="mono" style="font-size:44px"><span class="muted" style="margin-left:30px;">1° regla defensiva</span> <span class="accent">→</span> <b class="accent">mínimo privilegio</b></span></p>
+      <div class="anim row" style="max-width:2100px;margin-left:auto;margin-right:auto;gap:90px">
         <div class="stage" style="margin-top:12px;min-height:0">
-          <h3><span class="n">LNX</span>Linux</h3>
-          <ul><li><b>root (UID 0)</b>: superusuario.</li><li><b>rwx</b>: permisos para dueño, grupo y otros.</li><li><b>SUID/SGID</b>: ejecución con identidad del dueño o grupo.</li><li><b>sudo</b>: comandos permitidos por reglas.</li><li><b>cron, PATH y capabilities</b>: otros puntos a revisar.</li></ul>
+          <h3 style="font-size:44px"><span class="n">LNX</span>Linux</h3>
+          <ul style="font-size:30px"><li><b>root (UID 0)</b>: superusuario.</li><li><b>rwx</b>: permisos para dueño, grupo y otros.</li><li><b>SUID/SGID</b>: ejecución con identidad del dueño o grupo.</li><li><b>sudo</b>: comandos permitidos por reglas.</li><li><b>cron, PATH y capabilities</b>: otros puntos a revisar.</li></ul>
         </div>
         <div class="stage" style="margin-top:12px;min-height:0">
-          <h3><span class="n">WIN</span>Windows</h3>
-          <ul><li><b>Administrator y SYSTEM</b>: identidades privilegiadas.</li><li><b>SID y token</b>: identidad y privilegios de cada proceso.</li><li><b>Servicios</b>: pueden correr como SYSTEM.</li><li><b>UAC</b>: confirmación de elevación.</li><li><b>MSI</b>: instalador afectado por AlwaysInstallElevated.</li></ul>
+          <h3 style="font-size:44px"><span class="n">WIN</span>Windows</h3>
+          <ul style="font-size:30px"><li><b>Administrator y SYSTEM</b>: identidades privilegiadas.</li><li><b>SID y token</b>: identidad y privilegios de cada proceso.</li><li><b>Servicios</b>: pueden correr como SYSTEM.</li><li><b>UAC</b>: confirmación de elevación.</li><li><b>MSI</b>: instalador afectado por AlwaysInstallElevated.</li></ul>
         </div>
       </div>
     </section>
 
     <!-- ============ METODOLOGIA ============ -->
     <section class="node" id="method" style="left:5000px;top:5480px;width:2800px">
-      <div class="anim tag">03 · Método</div>
-      <h2 class="anim" style="margin-top:18px">De la enumeración a la comprobación</h2>
-      <div class="anim row">
-        <div class="stage" style="margin-top:18px;min-height:0"><h3><span class="n">01</span>Enumerar</h3><p>Identidad, grupos, permisos, binarios, servicios, tareas, archivos escribibles y versiones. Es la búsqueda del descuido.</p></div>
-        <div class="stage" style="margin-top:18px;min-height:0"><h3><span class="n">02</span>Identificar</h3><p>Elegir un vector concreto y comprobar sus requisitos: por ejemplo, un SUID abusable o una ruta de servicio escribible.</p></div>
-        <div class="stage" style="margin-top:0;min-height:0"><h3><span class="n">03</span>Explotar</h3><p>Ejecutar una acción con los permisos elevados que aporta ese vector, sólo en el laboratorio autorizado.</p></div>
-        <div class="stage" style="margin-top:0;min-height:0"><h3><span class="n">04</span>Comprobar</h3><p>Verificar la identidad del proceso elevado: <code>id</code> y UID efectivo 0 en Linux; <code>whoami</code> dentro del proceso en Windows.</p></div>
+      <div class="anim tag" style="font-size:28px">03 · Método</div>
+      <h2 class="anim" style="margin-top:60px;font-size:70px">De la enumeración a la comprobación</h2>
+      <div class="anim row" style="margin-top:50px">
+        <div class="stage" style="margin-top:18px;min-height:0"><h3 style="font-size:44px"><span class="n">01</span>Enumerar</h3><p style="font-size:30px">Identidad, grupos, permisos, binarios, servicios, tareas, archivos escribibles y versiones.<br><b>Es la búsqueda del descuido.</b></p></div>
+        <div class="stage" style="margin-top:18px;min-height:0"><h3 style="font-size:44px"><span class="n">02</span>Identificar</h3><p style="font-size:30px">Elegir un vector concreto y comprobar sus requisitos: por ejemplo, un SUID abusable o una ruta de servicio escribible.</p></div>
+        <div class="stage" style="margin-top:0;min-height:0"><h3 style="font-size:44px"><span class="n">03</span>Explotar</h3><p style="font-size:30px">Ejecutar una acción con los permisos elevados que aporta ese vector</p></div>
+        <div class="stage" style="margin-top:0;min-height:0"><h3 style="font-size:44px"><span class="n">04</span>Comprobar</h3><p style="font-size:30px">Verificar la identidad del proceso elevado: <code>id</code> y UID efectivo 0 en Linux; <code>whoami</code> dentro del proceso en Windows.</p></div>
       </div>
-      <p class="anim muted" style="font-size:20px">Las herramientas automáticas ayudan a <b>enumerar</b>; un hallazgo exige revisar permisos y condiciones antes de afirmar que se puede escalar.</p>
+      <p class="anim" style="font-size:34px;margin-top:70px;color:var(--sub)">Las herramientas automáticas ayudan a <b class="accent">enumerar</b>, y algunas a <b class="accent">identificar</b>.</p>
     </section>
 
     <!-- ============ WINDOWS OVERVIEW ============ -->
     <section class="node win" id="win" style="left:1400px;top:1520px;width:2200px">
-      <div class="anim tag win">Sistema · Windows</div>
-      <h2 class="anim" style="margin-top:18px">Windows</h2>
-      <p class="anim big">El objetivo es obtener privilegios de <span class="accent">Administrator o NT AUTHORITY\SYSTEM</span>. Dos configuraciones peligrosas:</p>
-      <ul class="anim">
-        <li><b>Caso W1 —</b> Unquoted Service Path (ruta de servicio sin comillas).</li>
-        <li><b>Caso W2 —</b> Política <code>AlwaysInstallElevated</code> activa en ambas ramas del registro.</li>
+      <div class="anim tag win" style="font-size:28px">Sistema · Windows</div>
+      <h2 class="anim" style="margin-top:60px;font-size:70px">Windows</h2>
+      <p class="anim big" style="font-size:36px;margin-top:50px;margin-bottom:30px">El objetivo es obtener privilegios de <span class="accent">Administrator o NT AUTHORITY\SYSTEM</span>. Dos configuraciones peligrosas:</p>
+      <ul class="anim" style="font-size:34px;margin-top:36px;margin-bottom:36px">
+        <li style="margin:18px 0"><b>Caso W1 —</b> Unquoted Service Path</li>
+        <li style="margin:18px 0"><b>Caso W2 —</b> Política <code>AlwaysInstallElevated</code></li>
       </ul>
-      <p class="anim muted" style="font-size:20px">Enumeración: <span class="mono">winPEAS.exe</span> / <span class="mono">PowerUp.ps1</span> → buscan rutas sin comillas, servicios modificables y la política de instaladores MSI.</p>
+      <p class="anim muted" style="font-size:28px;margin-top:70px">Enumeración: <b class="mono accent">winPEAS.exe</b> / <b class="mono accent">PowerUp.ps1</b> → buscan rutas sin comillas, servicios modificables y la política de instaladores MSI.</p>
     </section>
 
     <!-- ============ WINDOWS CASE 1 ============ -->
     <section class="node win case" id="w1" style="left:200px;top:2740px;width:2320px">
-      <div class="anim tag win" id="w1-head">Caso W1 · Unquoted Service Path</div>
-      <h2 class="anim" style="margin-top:14px">Ruta de servicio sin comillas</h2>
+      <div class="anim tag win" id="w1-head" style="font-size:26px">Caso W1 · Unquoted Service Path</div>
+      <h2 class="anim" style="margin-top:40px;font-size:62px">Ruta de servicio sin comillas</h2>
 
-      <div class="anim stage glow" id="w1-vuln">
-        <h3><span class="n">01</span>La debilidad</h3>
-        <p>Un servicio se registra con una ruta <b>con espacios y sin comillas</b>. Windows no sabe dónde termina el ejecutable, así que <b>prueba candidatos</b> de izquierda a derecha:</p>
-        <div class="pathline">C:\Program<span class="try"> Files\Vuln</span><span class="try"> Service\bin\srv.exe</span></div>
-        <div class="probe">
-          <div class="cand">1) C:\Program.exe</div>
-          <div class="cand">2) C:\Program Files\Vuln.exe</div>
-          <div class="cand">3) C:\Program Files\Vuln Service\bin\srv.exe <span class="hit">← intención real</span></div>
+      <div class="anim stage glow" id="w1-vuln" style="margin-top:50px">
+        <h3 style="font-size:42px"><span class="n">01</span>La debilidad</h3>
+        <p style="font-size:30px;margin-top:22px">Un servicio se registra con una ruta <b>con espacios y sin comillas</b>. Windows no sabe dónde termina el ejecutable, así que <b>prueba candidatos</b> de izquierda a derecha:</p>
+        <div class="pathline" style="margin-top:28px;font-size:28px">C:\Program Files\Vuln Service\bin\srv.exe<span class="try" style="margin:0 26px">→</span><span style="color:var(--red-hot)">C:\Program</span><span style="color:#7ba3ff"> Files\Vuln</span><span style="color:#ffcf7a"> Service\bin\srv.exe</span></div>
+        <div class="probe" style="margin-top:30px">
+          <div class="cand" style="font-size:28px"><b style="color:var(--red-hot)">1)</b> C:\Program.exe</div>
+          <div class="cand" style="font-size:28px"><b style="color:#7ba3ff">2)</b> C:\Program Files\Vuln.exe</div>
+          <div class="cand" style="font-size:28px;color:#ffcf7a"><b>3)</b> C:\Program Files\Vuln Service\bin\srv.exe <span class="hit" style="color:#ffcf7a">← intención real</span></div>
         </div>
       </div>
 
-      <div class="anim stage" id="w1-exploit">
-        <h3><span class="n">02</span>La explotación</h3>
-        <p>Si el usuario tiene <b>permiso de escritura</b> en la ubicación de un candidato, coloca allí un binario de prueba. Cuando el servicio se inicia de nuevo y corre como SYSTEM, Windows puede ejecutar ese binario.</p>
-        <div class="term glow">
+      <div class="anim stage" id="w1-exploit" style="margin-top:50px">
+        <h3 style="font-size:42px"><span class="n">02</span>La explotación</h3>
+        <p style="font-size:30px;margin-top:30px;margin-bottom:24px">Si el usuario tiene <b>permiso de escritura</b> en la ubicación de un candidato, coloca allí un binario de prueba. Cuando el servicio se inicia de nuevo y corre como SYSTEM, Windows puede ejecutar ese binario.</p>
+        <div class="term glow" style="font-size:26px;margin-top:26px">
           <div class="bar"><i></i><i></i><i></i><span>cmd · laboratorio</span></div>
           <div class="body"><span class="d">C:&gt;</span> wmic service get name,pathname,startmode
 <span class="d">C:&gt;</span> icacls "C:\Program Files"
@@ -341,25 +344,24 @@
 <span class="d">C:&gt;</span> copy payload.exe "C:\Program Files\Vuln.exe"
 <span class="d">C:&gt;</span> sc stop VulnSvc
 <span class="d">C:&gt;</span> sc start VulnSvc
-<span class="r">[+] Verificar la acción del binario ejecutado como SYSTEM</span><span class="cursor"></span></div>
+<span class="r">[+] Verificar la acción del binario ejecutado como SYSTEM</span><span class="cursor" style="width:13px;height:27px;margin-left:10px;"></span></div>
         </div>
       </div>
 
-      <p class="anim muted" style="font-size:19px">No funciona sin escritura en una ubicación candidata ni sin una nueva ejecución del servicio.</p>
-      <div class="anim stage rem" id="w1-rem">
-        <h3><span class="n">🛡</span>Remediación / Hardening</h3>
-        <ul>
-          <li><b>Encomillar</b> siempre el <code>ImagePath</code>: <span class="mono">"C:\...\srv.exe"</span>.</li>
-          <li>Quitar permisos de escritura de usuarios sobre <code>C:\</code> y carpetas de programa.</li>
-          <li>Auditar con <span class="mono">PowerUp / winPEAS</span> y corregir en el hardening base.</li>
+      <div class="anim stage rem" id="w1-rem" style="margin-top:50px">
+        <h3 style="font-size:42px"><span class="n">🛡</span>Remediación / Hardening</h3>
+        <ul style="font-size:30px;margin-top:30px;margin-bottom:30px">
+          <li style="margin:18px 0"><b>Encomillar</b> siempre el <code>ImagePath</code>: <span class="mono">"C:\...\srv.exe"</span>.</li>
+          <li style="margin:18px 0">Quitar permisos de escritura de usuarios sobre <code>C:\</code> y carpetas de programa.</li>
+          <li style="margin:18px 0">Auditar con <b class="mono" style="color:var(--ok)">PowerUp/winPEAS</b> y corregir en el hardening base.</li>
         </ul>
       </div>
 
-      <div class="anim demo" id="w1-demo">▶ PUNTO DE DEMO — ruta sin comillas + carpeta escribible + reinicio del servicio</div>
+      <div class="anim demo" id="w1-demo" style="font-size:26px;padding:18px 22px;margin-top:40px">▶ PUNTO DE DEMO — ruta sin comillas + carpeta escribible + reinicio del servicio</div>
     </section>
 
     <!-- ============ WINDOWS CASE 1 QUESTION ============ -->
-    <section class="node q win" id="qw1" style="left:400px;top:4620px;width:1900px">
+    <section class="node q win" id="qw1" style="left:400px;top:5000px;width:1900px">
       <div class="anim tag win">? · Pregunta al público · Ronda 1</div>
       <h2 class="anim" style="margin-top:18px">¿Qué condición vuelve <i>explotable</i> un Unquoted Service Path?</h2>
       <div class="anim options" data-correct="B">
@@ -372,32 +374,35 @@
     </section>
 
     <!-- ============ WINDOWS CASE 2 ============ -->
-    <section class="node win case" id="w2" style="left:200px;top:6000px;width:2320px">
-      <div class="anim tag win" id="w2-head">Caso W2 · AlwaysInstallElevated</div>
-      <h2 class="anim" style="margin-top:14px">Instaladores MSI con privilegios elevados</h2>
-      <div class="anim stage glow" id="w2-vuln">
-        <h3><span class="n">01</span>La debilidad</h3>
-        <p>La política <code>AlwaysInstallElevated</code> permite instalar paquetes MSI con privilegios elevados. Para que exista el vector, el valor <b>REG_DWORD 0x1</b> debe estar presente en <b>HKCU y HKLM</b>; una sola rama no alcanza.</p>
-        <div class="term"><div class="bar"><i></i><i></i><i></i><span>cmd · enumeración</span></div><div class="body"><span class="d">C:&gt;</span> reg query HKCU\SOFTWARE\Policies\Microsoft\Windows\Installer /v AlwaysInstallElevated
+    <section class="node win case" id="w2" style="left:200px;top:6380px;width:2320px">
+      <div class="anim tag win" id="w2-head" style="font-size:26px">Caso W2 · AlwaysInstallElevated</div>
+      <h2 class="anim" style="margin-top:40px;font-size:62px">Instaladores MSI con privilegios elevados</h2>
+      <div class="anim stage glow" id="w2-vuln" style="margin-top:50px">
+        <h3 style="font-size:42px"><span class="n">01</span>La debilidad</h3>
+        <p style="font-size:30px;margin-top:22px">La política <code>AlwaysInstallElevated</code> permite instalar paquetes MSI con privilegios elevados. Para que exista el vector, el valor <b>REG_DWORD 0x1</b> debe estar presente en <b>HKCU y HKLM</b>; una sola rama no alcanza.</p>
+        <div class="term" style="font-size:26px;margin-top:26px"><div class="bar"><i></i><i></i><i></i><span>cmd · enumeración</span></div><div class="body"><span class="d">C:&gt;</span> reg query HKCU\SOFTWARE\Policies\Microsoft\Windows\Installer /v AlwaysInstallElevated
 <span class="d">C:&gt;</span> reg query HKLM\SOFTWARE\Policies\Microsoft\Windows\Installer /v AlwaysInstallElevated
 <span class="y">Ambas respuestas: REG_DWORD 0x1</span></div></div>
       </div>
-      <div class="anim stage" id="w2-exploit">
-        <h3><span class="n">02</span>Explotación y comprobación</h3>
-        <p>En el laboratorio, un usuario común ejecuta un MSI preparado para realizar una acción privilegiada. La política eleva la <b>instalación</b>; la consola que lanzó <code>msiexec</code> no cambia de identidad.</p>
-        <div class="term glow"><div class="bar"><i></i><i></i><i></i><span>cmd</span></div><div class="body"><span class="d">C:&gt;</span> msiexec /quiet /qn /i C:\ruta\prueba.msi
-<span class="c">[+] Verificar la acción privilegiada del MSI en el equipo de prueba</span></div></div>
-        <p class="muted" style="font-size:19px">No funciona si falta una de las dos claves; un control de seguridad también puede bloquear el paquete.</p>
+      <div class="anim stage" id="w2-exploit" style="margin-top:50px">
+        <h3 style="font-size:42px"><span class="n">02</span>Explotación y comprobación</h3>
+        <p style="font-size:30px;margin-top:22px">Un usuario común ejecuta un MSI preparado para realizar una acción privilegiada. La política eleva la <b>instalación</b>; la consola que lanzó <code>msiexec</code> no cambia de identidad y ejecuta el código malicioso con privilegios de <b class="accent">SYSTEM</b></p>
+        <div class="term glow" style="font-size:26px;margin-top:26px"><div class="bar"><i></i><i></i><i></i><span>cmd</span></div><div class="body"><span class="d">C:&gt;</span> msiexec /quiet /qn /i C:\ruta\prueba.msi
+<span class="r">[+] Verificar la acción privilegiada del MSI en el equipo de prueba</span></div></div>
       </div>
-      <div class="anim stage rem" id="w2-rem">
-        <h3><span class="n">🛡</span>Remediación / Hardening</h3>
-        <ul><li>Desactivar <code>AlwaysInstallElevated</code> en <b>HKCU y HKLM</b> (valor 0 o ausente).</li><li>Distribuir software mediante herramientas corporativas controladas.</li><li>Auditar ambas ramas del registro, no sólo una.</li></ul>
+      <div class="anim stage rem" id="w2-rem" style="margin-top:50px">
+        <h3 style="font-size:42px"><span class="n">🛡</span>Remediación / Hardening</h3>
+        <ul style="font-size:30px;margin-top:30px;margin-bottom:30px">
+          <li style="margin:18px 0">Desactivar <code>AlwaysInstallElevated</code> en <b>HKCU y HKLM</b> (valor 0 o ausente).</li>
+          <li style="margin:18px 0">Distribuir software mediante herramientas corporativas controladas.</li>
+          <li style="margin:18px 0">Auditar ambas ramas del registro, no sólo una.</li>
+        </ul>
       </div>
       <div class="anim demo" id="w2-demo">▶ PUNTO DE DEMO — dos claves en 1 → MSI elevado; una sola en 1 → no aplica</div>
     </section>
 
     <!-- ============ WINDOWS CASE 2 QUESTION ============ -->
-    <section class="node q win" id="qw2" style="left:400px;top:7880px;width:1900px">
+    <section class="node q win" id="qw2" style="left:400px;top:8260px;width:1900px">
       <div class="anim tag win">? · Pregunta al público · Ronda 2</div>
       <h2 class="anim" style="margin-top:18px">¿Qué requiere AlwaysInstallElevated para elevar un MSI?</h2>
       <div class="anim options" data-correct="A">
@@ -411,97 +416,88 @@
 
     <!-- ============ LINUX OVERVIEW ============ -->
     <section class="node lin" id="lin" style="left:9400px;top:1520px;width:2200px">
-      <div class="anim tag lin">Sistema · Linux</div>
-      <h2 class="anim" style="margin-top:18px">Linux</h2>
-      <p class="anim big">El objetivo es pasar de un usuario común a <span class="accent">root (uid=0)</span>. Dos técnicas clásicas:</p>
-      <ul class="anim">
-        <li><b>Caso L1 —</b> Binario <b>SUID</b> abusable (GTFOBins).</li>
-        <li><b>Caso L2 —</b> Mala configuración de <b>sudo</b> (<code>NOPASSWD</code>).</li>
+      <div class="anim tag lin" style="font-size:28px">Sistema · Linux</div>
+      <h2 class="anim" style="margin-top:60px;font-size:70px">Linux</h2>
+      <p class="anim big" style="font-size:36px;margin-top:50px;margin-bottom:30px">El objetivo es pasar de un usuario común a <span class="accent">root (uid=0)</span>. Dos técnicas clásicas:</p>
+      <ul class="anim" style="font-size:30px;margin-top:36px;margin-bottom:36px">
+        <li style="margin:18px 0"><b>Caso L1 —</b> Binario <b>SUID</b> abusable (GTFOBins).</li>
+        <li style="margin:18px 0"><b>Caso L2 —</b> Mala configuración de <b>sudo</b> (<code>NOPASSWD</code>).</li>
       </ul>
-      <p class="anim muted" style="font-size:20px">Enumeración: <span class="mono">linPEAS.sh</span> / <span class="mono">find / -perm -4000</span> / <span class="mono">sudo -l</span> → buscan SUID, capabilities, cron y reglas de sudo.</p>
+      <p class="anim muted" style="font-size:34px;margin-top:70px">Enumeración: <span class="mono">linPEAS.sh</span> / <span class="mono">find / -perm -4000</span> / <span class="mono">sudo -l</span> → buscan SUID, capabilities, cron y reglas de sudo.</p>
     </section>
 
     <!-- ============ LINUX CASE 1 ============ -->
     <section class="node lin case" id="l1" style="left:8400px;top:2740px;width:2320px">
-      <div class="anim tag lin" id="l1-head">Caso L1 · Binario SUID</div>
-      <h2 class="anim" style="margin-top:14px">SUID root abusable (GTFOBins)</h2>
+      <div class="anim tag lin" id="l1-head" style="font-size:26px">Caso L1 · Binario SUID</div>
+      <h2 class="anim" style="margin-top:40px;font-size:62px">SUID root abusable (GTFOBins)</h2>
 
-      <div class="anim stage glow" id="l1-vuln">
-        <h3><span class="n">01</span>La debilidad</h3>
-        <p>Un binario con el bit <b>SUID</b> se ejecuta con los permisos de su <b>dueño</b>. Si el dueño es <b>root</b> y el binario permite ejecutar comandos, obtenemos un shell root.</p>
-        <div class="perm">-rw<span class="s">s</span>r-xr-x &nbsp; root root &nbsp; /usr/bin/find</div>
-        <p class="muted" style="font-size:19px">La <span class="accent mono">s</span> en el bloque del dueño = SUID activo. <code>find</code> con SUID root es un ejemplo deliberado de laboratorio.</p>
+      <div class="anim stage glow" id="l1-vuln" style="margin-top:50px">
+        <h3 style="font-size:42px"><span class="n">01</span>La debilidad</h3>
+        <p style="font-size:30px;margin-top:22px">Un binario con el bit <b>SUID</b> se ejecuta con permisos del <b>dueño</b>. Si el dueño es <b>root</b> y el binario permite ejecutar comandos, obtenemos un shell root.</p>
+        <div class="perm" style="font-size:40px;margin-top:40px;margin-bottom:27px">-rw<span class="s">s</span>r-xr-x &nbsp; root root &nbsp; /usr/bin/find</div>
+        <p class="anim" style="font-size:32px;margin-top:30px;color:var(--sub)"><b>La <span class="accent mono">s</span> en el bloque del dueño = SUID activo</b></p>
       </div>
 
-      <div class="anim stage" id="l1-exploit">
-        <h3><span class="n">02</span>La explotación</h3>
-        <p>Buscamos SUID inusuales y consultamos <b>GTFOBins</b> para el "escape" del binario:</p>
-        <div class="term glow">
+      <div class="anim stage" id="l1-exploit" style="margin-top:50px">
+        <h3 style="font-size:42px"><span class="n">02</span>La explotación</h3>
+        <p style="font-size:30px;margin-top:22px">Buscamos SUID inusuales y consultamos <b>GTFOBins</b> para el "escape" del binario:</p>
+        <div class="term glow" style="font-size:26px;margin-top:26px">
           <div class="bar"><i></i><i></i><i></i><span>bash</span></div>
           <div class="body"><span class="d">$</span> find / -perm -4000 -type f 2&gt;/dev/null
 <span class="y">/usr/bin/find</span>
 <span class="d">$</span> find . -exec /bin/sh -p \; -quit
-<span class="c"># </span><span class="r">id → euid=0(root)</span><span class="cursor"></span></div>
+<span class="c"># </span><span class="r">id → euid=0(root)</span><span class="cursor" style="width:13px;height:27px;margin-left:10px;"></span></div>
         </div>
       </div>
 
-      <p class="anim muted" style="font-size:19px">La opción <code>-p</code> conserva el UID efectivo elevado; sin ella, la shell puede descartarlo. Un SUID sin escape tampoco da una vía directa.</p>
-      <div class="anim stage rem" id="l1-rem">
-        <h3><span class="n">🛡</span>Remediación / Hardening</h3>
-        <ul>
-          <li>Quitar el bit SUID innecesario: <span class="mono">chmod u-s /usr/bin/find</span>.</li>
-          <li>Inventariar SUID y compararlos contra una baseline conocida.</li>
-          <li>Preferir <b>capabilities</b> para poderes puntuales; usar <span class="mono">nosuid</span> donde corresponda.</li>
-        </ul>
-      </div>
-
+      <p class="anim muted" style="font-size:28px;margin-top:20px;margin-left:35px;">La opción <code>-p</code> conserva el UID efectivo elevado</p>
       <div class="anim demo" id="l1-demo">▶ PUNTO DE DEMO — comparar el UID efectivo con y sin <code>-p</code></div>
     </section>
 
     <!-- ============ LINUX CASE 1 QUESTION ============ -->
     <section class="node q lin" id="ql1" style="left:8600px;top:4620px;width:1900px">
       <div class="anim tag lin">? · Pregunta al público · Ronda 3</div>
-      <h2 class="anim" style="margin-top:18px">¿Qué permite un binario SUID cuyo dueño es root?</h2>
-      <div class="anim options" data-correct="D">
-        <button class="opt"><span class="k">A</span>Cifrar el disco automáticamente.</button>
-        <button class="opt"><span class="k">B</span>Nada, SUID es sólo informativo.</button>
-        <button class="opt"><span class="k">C</span>Acelerar la ejecución del binario.</button>
-        <button class="opt"><span class="k">D</span>Ejecutarse con permisos de root, permitiendo un escape a shell.</button>
+      <h2 class="anim" style="margin-top:18px">¿Como piensan que se resuelve esta vulnerabilidad?</h2>
+      <div class="anim options" data-correct="A,B,C,D">
+        <button class="opt"><span class="k">A</span>Quitar el bit SUID si no es necesario: <code>chmod u-s /usr/bin/find</code>.</button>
+        <button class="opt"><span class="k">B</span>Monitorear los binarios SUID y compararlos periódicamente con una línea base conocida.</button>
+        <button class="opt"><span class="k">C</span>Preferir <code>capabilities</code> para otorgar permisos puntuales.</button>
+        <button class="opt"><span class="k">D</span>Usar <code>nosuid</code> donde corresponda.</button>
       </div>
       <div class="anim board-mount"></div>
     </section>
 
     <!-- ============ LINUX CASE 2 ============ -->
     <section class="node lin case" id="l2" style="left:8400px;top:6000px;width:2320px">
-      <div class="anim tag lin" id="l2-head">Caso L2 · sudo mal configurado</div>
-      <h2 class="anim" style="margin-top:14px">Reglas de sudo permisivas</h2>
+      <div class="anim tag lin" id="l2-head" style="font-size:26px">Caso L2 · sudo mal configurado</div>
+      <h2 class="anim" style="margin-top:40px;font-size:62px">Reglas de sudo permisivas</h2>
 
-      <div class="anim stage glow" id="l2-vuln">
-        <h3><span class="n">01</span>La debilidad</h3>
-        <p>Una regla en <code>/etc/sudoers</code> permite ejecutar un programa como root. El riesgo está en autorizar uno que abre una shell o ejecuta comandos; <b>NOPASSWD</b> permite hacerlo sin contraseña.</p>
-        <div class="sudoentry">user ALL=(ALL) /usr/bin/apt-get</div>
-        <div class="sudoentry hot">user ALL=(ALL) <b>NOPASSWD:</b> /usr/bin/vim &nbsp;<span class="arrow">← peligroso</span></div>
+      <div class="anim stage glow" id="l2-vuln" style="margin-top:50px">
+        <h3 style="font-size:42px"><span class="n">01</span>La debilidad</h3>
+        <p style="font-size:30px;margin-top:22px">Una regla en <code>/etc/sudoers</code> permite ejecutar un programa como root. El riesgo está en autorizar uno que abre una shell o ejecuta comandos; <b>NOPASSWD</b> permite hacerlo sin contraseña.</p>
+        <div class="sudoentry" style="font-size:28px;margin-top:26px">user ALL=(ALL) /usr/bin/apt-get</div>
+        <div class="sudoentry hot" style="font-size:28px;margin-top:16px">user ALL=(ALL) <b>NOPASSWD:</b> /usr/bin/vim &nbsp;<span class="arrow">← peligroso</span></div>
       </div>
 
-      <div class="anim stage" id="l2-exploit">
-        <h3><span class="n">02</span>La explotación</h3>
-        <p>Listamos permisos con <span class="mono">sudo -l</span> y usamos el escape del binario permitido (GTFOBins):</p>
-        <div class="term glow">
+      <div class="anim stage" id="l2-exploit" style="margin-top:50px">
+        <h3 style="font-size:42px"><span class="n">02</span>La explotación</h3>
+        <p style="font-size:30px;margin-top:22px">Listamos permisos con <span class="mono">sudo -l</span> y usamos el escape del binario permitido (GTFOBins):</p>
+        <div class="term glow" style="font-size:26px;margin-top:26px">
           <div class="bar"><i></i><i></i><i></i><span>bash</span></div>
           <div class="body"><span class="d">$</span> sudo -l
   <span class="y">(ALL) NOPASSWD: /usr/bin/vim</span>
 <span class="d">$</span> sudo vim -c ':!/bin/sh'
-<span class="c"># </span><span class="r">whoami → root</span><span class="cursor"></span></div>
+<span class="c"># </span><span class="r">whoami → root</span><span class="cursor" style="width:13px;height:27px;margin-left:10px;"></span></div>
         </div>
       </div>
 
-      <p class="anim muted" style="font-size:19px">Sin un programa con escape, no hay salto directo. Si la regla exige contraseña y no la conocemos, sudo detiene el intento.</p>
-      <div class="anim stage rem" id="l2-rem">
-        <h3><span class="n">🛡</span>Remediación / Hardening</h3>
-        <ul>
-          <li>Principio de <b>mínimo privilegio</b> en sudoers; evitar <code>NOPASSWD</code>.</li>
-          <li>Nunca permitir binarios con escape (<span class="mono">vim, find, less, awk</span>) vía sudo.</li>
-          <li>Para editar archivos, usar <code>sudoedit</code>. Validar reglas con <code>visudo</code> y auditarlas periódicamente.</li>
+      <p class="anim muted" style="font-size:28px;margin-top:20px;margin-left:35px;">Sin un programa con escape, no hay salto directo. Si la regla exige contraseña y no la conocemos, sudo detiene el intento.</p>
+      <div class="anim stage rem" id="l2-rem" style="margin-top:70px">
+        <h3 style="font-size:42px"><span class="n">🛡</span>Remediación / Hardening</h3>
+        <ul style="font-size:30px;margin-top:30px;margin-bottom:30px">
+          <li style="margin:18px 0">Principio de <b>mínimo privilegio</b> en sudoers; evitar <code>NOPASSWD</code>.</li>
+          <li style="margin:18px 0">Nunca permitir binarios con escape (<span class="mono">vim, find, less, awk</span>) vía sudo.</li>
+          <li style="margin:18px 0">Para editar archivos, usar <code>sudoedit</code>. Validar reglas con <code>visudo</code> y auditarlas periódicamente.</li>
         </ul>
       </div>
 
@@ -522,30 +518,36 @@
     </section>
 
     <!-- ============ HERRAMIENTAS ============ -->
-    <section class="node" id="tools" style="left:5000px;top:8900px;width:2800px">
-      <div class="anim tag">04 · Enumeración automática</div>
-      <h2 class="anim" style="margin-top:18px">Qué busca cada herramienta</h2>
-      <div class="anim row">
-        <div class="stage" style="margin-top:16px;min-height:0"><h3><span class="n">LNX</span>LinPEAS</h3><p>SUID/SGID, reglas de sudo, cron, PATH, permisos de escritura, capabilities, versiones y posibles credenciales expuestas.</p></div>
-        <div class="stage" style="margin-top:16px;min-height:0"><h3><span class="n">WIN</span>WinPEAS</h3><p>Servicios y rutas débiles, AlwaysInstallElevated, privilegios del token, tareas modificables y credenciales guardadas.</p></div>
+    <section class="node" id="tools" style="left:5000px;top:9280px;width:2800px">
+      <div class="anim tag" style="font-size:28px">04 · Enumeración automática</div>
+      <h2 class="anim" style="margin-top:60px;font-size:70px">Qué busca cada herramienta</h2>
+      <div class="anim row" style="margin-top:50px">
+        <div class="stage" style="margin-top:16px;min-height:0"><h3 style="font-size:44px"><span class="n">LNX</span>LinPEAS</h3><p style="font-size:30px">SUID/SGID, reglas de sudo, cron, PATH, permisos de escritura, capabilities, versiones y posibles credenciales expuestas.</p></div>
+        <div class="stage" style="margin-top:16px;min-height:0"><h3 style="font-size:44px"><span class="n">WIN</span>WinPEAS</h3><p style="font-size:30px">Servicios y rutas débiles, AlwaysInstallElevated, privilegios del token, tareas modificables y credenciales guardadas.</p></div>
       </div>
-      <div class="anim stage" style="min-height:0"><h3><span class="n">PS</span>PowerUp</h3><p><code>Invoke-AllChecks</code> revisa servicios modificables, rutas sin comillas, AlwaysInstallElevated y secuestro de DLL. Puede sugerir comandos para validar hallazgos.</p></div>
-      <p class="anim muted" style="font-size:20px">En la demo: mostrar primero <code>sudo -l</code> o las dos consultas <code>reg query</code>; luego usar la herramienta para confirmar el mismo hallazgo.</p>
+      <div class="anim stage" style="min-height:0;margin-top:24px"><h3 style="font-size:44px"><span class="n">PS</span>PowerUp</h3><p style="font-size:30px"><code>Invoke-AllChecks</code> revisa servicios modificables, rutas sin comillas, AlwaysInstallElevated y secuestro de DLL. Puede sugerir comandos para validar hallazgos.</p></div>
     </section>
 
     <!-- ============ CLOSING ============ -->
-    <section class="node" id="end" style="left:5300px;top:10600px;width:2400px">
-      <div class="anim tag">Cierre · Remediación</div>
-      <h2 class="anim" style="margin-top:16px">Defender cada vector</h2>
-      <ul class="anim" style="font-size:24px">
-        <li><b>SUID:</b> quitar el bit cuando no es necesario; inventariar binarios y preferir capabilities puntuales.</li>
-        <li><b>sudo:</b> permitir sólo comandos acotados, evitar editores con escape y usar <code>sudoedit</code>.</li>
-        <li><b>Servicio Windows:</b> encomillar la ruta y restringir escritura en las carpetas candidatas.</li>
-        <li><b>AlwaysInstallElevated:</b> desactivar la política en HKCU y HKLM; distribuir software de forma controlada.</li>
+    <section class="node" id="end" style="left:5300px;top:10980px;width:2400px">
+      <div class="anim tag" style="font-size:28px">Cierre · Remediación</div>
+      <h2 class="anim" style="margin-top:60px;font-size:70px">Defender cada vector</h2>
+      <ul class="anim" style="font-size:34px;margin-top:36px;margin-bottom:36px">
+        <li style="margin:26px 0"><b>SUID:</b> quitar el bit cuando no es necesario; inventariar binarios y preferir capabilities puntuales.</li>
+        <li style="margin:26px 0"><b>sudo:</b> permitir sólo comandos acotados, evitar editores con escape y usar <code>sudoedit</code>.</li>
+        <li style="margin:26px 0"><b>Servicio Windows:</b> encomillar la ruta y restringir escritura en las carpetas candidatas.</li>
+        <li style="margin:26px 0"><b>AlwaysInstallElevated:</b> desactivar la política en HKCU y HKLM; distribuir software de forma controlada.</li>
       </ul>
-      <p class="anim big">En todos los casos: <span class="accent">mínimo privilegio, actualizaciones y auditoría periódica</span>.</p>
-      <p class="anim big accent" style="margin-top:22px">¿Preguntas?</p>
-      <p class="anim mono muted" style="font-size:15px">Grupo 2 · Seguridad Ofensiva 2C 2026</p>
+      <p class="anim big" style="font-size:40px">En todos los casos: <span class="accent">mínimo privilegio, actualizaciones y auditoría periódica</span>.</p>
+      <p class="anim mono muted" style="font-size:24px;margin-top:40px">Grupo 2 · Seguridad Ofensiva 2C 2026</p>
+    </section>
+
+    <!-- ============ OUTRO ============ -->
+    <section class="node" id="outro" style="left:5300px;top:12700px;width:2600px;padding:110px 120px 60px">
+      <div class="anim tag" style="font-size:30px">Cierre · 2C 2026</div>
+      <h1 class="anim" style="margin-top:70px;font-size:150px;text-align:center">¡Muchas gracias!</h1>
+      <p class="anim big accent" style="margin-top:50px;font-size:64px;text-align:center">¿Preguntas?</p>
+      <p class="anim mono muted" style="font-size:28px;margin-top:80px;text-align:center">Grupo 2 — Windows &amp; Linux &nbsp;·&nbsp; Seguridad Ofensiva 2C 2026</p>
     </section>
 
   </div>
@@ -557,7 +559,6 @@
 const STEPS = [
   {sel:'#title'},
   {sel:'#intro'},
-  {sel:'#intro .row', pad:180},
   {sel:'#q0'},
   {sel:'#base'},
   {sel:'#method'},
@@ -580,7 +581,7 @@ const STEPS = [
   {sel:'#l1', pad:820},
   {sel:'#l1-vuln', pad:110},
   {sel:'#l1-exploit', pad:110},
-  {sel:'#l1-rem', pad:110},
+  {sel:'#l1-demo', pad:300},
   {sel:'#ql1'},
 
   {sel:'#l2', pad:820},
@@ -591,6 +592,7 @@ const STEPS = [
 
   {sel:'#tools'},
   {sel:'#end'},
+  {sel:'#outro'},
 ];
 
 const universe = document.getElementById('universe');
@@ -630,6 +632,7 @@ function go(i, instant=false){
   target.x=t.x; target.y=t.y; target.s=t.s;
   if(instant || !camInit){ cam.x=t.x; cam.y=t.y; cam.s=t.s; camInit=true; }
   updateHud();
+  if(history.replaceState) history.replaceState(null, '', '#'+(idx+1));
 }
 
 /* ---------- Motor galáctico (canvas) ---------- */
@@ -642,12 +645,12 @@ const stars = [], nebulae = [];
 function seedField(){
   stars.length=0; nebulae.length=0;
   // stars sembradas en un area mayor que el universo
-  const N = 720;
+  const N = 820;
   for(let i=0;i<N;i++){
     const depth = Math.pow(Math.random(),1.6)*0.8 + 0.08; // 0.08..0.88
     stars.push({
       x:-2200 + Math.random()*17000,
-      y:-2200 + Math.random()*13000,
+      y:-2200 + Math.random()*17000,
       p:depth,
       r:(Math.random()*1.2+0.3)*(0.5+depth),
       tw:Math.random()*Math.PI*2,
@@ -658,7 +661,7 @@ function seedField(){
   }
   // nebulosas galacticas (rojo dominante + acentos violeta)
   const cols=[[255,50,64],[190,20,60],[120,20,120],[255,90,70],[90,10,80]];
-  const spots=[[6500,700],[1600,3400],[9500,3400],[1400,7000],[9600,7000],[6400,7200],[5400,2400]];
+  const spots=[[6500,700],[1600,3400],[9500,3400],[1400,7000],[9600,7000],[6400,7200],[5400,2400],[6600,13100]];
   spots.forEach((s,k)=>{
     const c=cols[k%cols.length];
     nebulae.push({x:s[0],y:s[1],p:0.34+Math.random()*0.12,rad:1300+Math.random()*900,
@@ -776,14 +779,14 @@ window.addEventListener('keydown', e=>{
 window.addEventListener('resize', ()=>{ resizeSpace(); const t=computeTarget(idx); if(t){target.x=t.x;target.y=t.y;target.s=t.s;} });
 
 document.querySelectorAll('.options').forEach(group=>{
-  const correct = group.dataset.correct;
+  const correct = new Set(group.dataset.correct.split(','));
   group.querySelectorAll('.opt').forEach(btn=>{
     const key = btn.querySelector('.k').textContent.trim();
     btn.addEventListener('click', ()=>{
       group.querySelectorAll('.opt').forEach(b=>{
-        if(b.querySelector('.k').textContent.trim()===correct) b.classList.add('reveal-correct');
+        if(correct.has(b.querySelector('.k').textContent.trim())) b.classList.add('reveal-correct');
       });
-      btn.classList.add(key===correct?'correct':'wrong');
+      btn.classList.add(correct.has(key)?'correct':'wrong');
     });
   });
 });
@@ -836,8 +839,14 @@ document.addEventListener('click', e=>{
 /* arranque del motor galáctico */
 resizeSpace();
 seedField();
-go(0, true);
+const hashIdx = parseInt(location.hash.replace('#',''), 10) - 1;
+go((Number.isInteger(hashIdx) && hashIdx>=0 && hashIdx<STEPS.length) ? hashIdx : 0, true);
 requestAnimationFrame(frame);
+
+window.addEventListener('hashchange', ()=>{
+  const i = parseInt(location.hash.replace('#',''), 10) - 1;
+  if(Number.isInteger(i) && i>=0 && i<STEPS.length) go(i);
+});
 </script>
 </body>
 </html>
