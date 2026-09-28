@@ -241,53 +241,39 @@
       <div class="anim tag" style="font-size:36px">Ofensiva · 2C 2026</div>
       <h1 class="anim" style="margin-top:160px;font-size:190px">Escalamiento de Privilegios</h1>
       <p class="anim big muted" style="margin-top:40px;font-size:60px;margin-left:8px;">De usuarios sin privilegios a <span class="accent">SYSTEM</span>/<span class="accent">root</span>. 2 sistemas operativos, 4 casos prácticos.</p>
-      <p class="anim mono muted" style="font-size:38px;margin-top:210px">Grupo 2 — Windows &amp; Linux &nbsp;·&nbsp; [ Integrantes: _______________ ]</p>
+      <p class="anim mono muted" style="font-size:38px;margin-top:210px">Grupo 2 — Windows &amp; Linux &nbsp;·&nbsp; [ Integrantes: Augusto Barthelemy Solá, 64502 · Celestino Garros, 64375 · Ezequiel Testoni, 64709 · Filipo Ardenghi, 64306 · Nicolás Priotto, 64663 ]</p>
     </section>
 
     <!-- ============ INTRO ============ -->
     <section class="node" id="intro" style="left:5100px;top:1520px;width:2600px">
       <div class="anim tag" style="font-size:28px">01 · Concepto</div>
       <h2 class="anim" style="margin-top:60px;font-size:70px">¿Qué es escalar privilegios?</h2>
-      <p class="anim big" style="font-size:36px;margin-top:50px;margin-bottom:50px">Es pasar de un acceso limitado a otro de mayor poder dentro del mismo sistema, aprovechando una <span class="accent">configuración, permiso o vulnerabilidad</span>. En Linux la meta suele ser <b>root</b>; en Windows, <b>Administrator o SYSTEM</b>.</p>
+      <p class="anim big" style="font-size:40px;margin-top:56px;margin-bottom:60px">Empezar con un acceso limitado y terminar con uno de <span class="accent">mucho más poder</span> en el mismo equipo, aprovechando un descuido de configuración.</p>
       <div class="anim row" style="margin-top:0px">
         <div class="stage glow" style="margin-top:0">
-          <h3 style="font-size:44px"><span class="n">↑</span>Vertical</h3>
-          <p style="font-size:30px">Un usuario común pasa a <b>administrador / root</b>. Es lo que cubrimos hoy.</p>
+          <h3 style="font-size:46px"><span class="n">↑</span>Vertical</h3>
+          <p style="font-size:32px">Subir de nivel. <b>Es lo de hoy.</b></p>
         </div>
         <div class="stage" style="margin-top:0">
-          <h3 style="font-size:44px"><span class="n">→</span>Horizontal</h3>
-          <p style="font-size:30px">Se accede a <b>otra cuenta del mismo nivel</b> para usar sus datos o permisos.</p>
+          <h3 style="font-size:46px"><span class="n">→</span>Horizontal</h3>
+          <p style="font-size:32px">Saltar a otra cuenta del <b>mismo nivel</b>.</p>
         </div>
       </div>
-      <p class="anim muted" style="font-size:34px;margin-top:70px">Secuencia habitual: <span class="mono accent" style="margin-left:20px;">acceso inicial → reconocimiento → escalamiento → objetivo final</span></p>
-    </section>
-
-    <!-- ============ INTRO QUESTION ============ -->
-    <section class="node q" id="q0" style="left:5200px;top:2860px;width:1900px">
-      <div class="anim tag">? · Pregunta al público · Ronda 0</div>
-      <h2 class="anim" style="margin-top:18px">¿Qué describe mejor el escalamiento de privilegios?</h2>
-      <div class="anim options" data-correct="C">
-        <button class="opt"><span class="k">A</span>Interceptar tráfico de red entre dos hosts.</button>
-        <button class="opt"><span class="k">B</span>Adivinar contraseñas por fuerza bruta.</button>
-        <button class="opt"><span class="k">C</span>Obtener un nivel de acceso mayor al asignado abusando de una debilidad.</button>
-        <button class="opt"><span class="k">D</span>Borrar los logs para no dejar rastro.</button>
-      </div>
-      <div class="anim board-mount"></div>
     </section>
 
     <!-- ============ CONCEPTOS BASE ============ -->
     <section class="node" id="base" style="left:5000px;top:4080px;width:2800px">
       <div class="anim tag" style="font-size:28px">02 · Conceptos base</div>
       <h2 class="anim" style="margin-top:60px;font-size:70px">Identidades, permisos y mínimo privilegio</h2>
-      <p class="anim big" style="font-size:36px;margin-top:50px;margin-bottom:50px">Archivos, carpetas y servicios deciden quién puede <b>leer, escribir o ejecutar</b>. <span class="mono" style="font-size:44px"><span class="muted" style="margin-left:30px;">1° regla defensiva</span> <span class="accent">→</span> <b class="accent">mínimo privilegio</b></span></p>
+      <p class="anim big" style="font-size:38px;margin-top:50px;margin-bottom:44px">Lo que podés hacer en un equipo depende de <b>quién sos</b> (tu usuario) y de los <b>permisos</b> que tiene cada archivo, carpeta o servicio para leer, escribir o ejecutar.</p>
       <div class="anim row" style="max-width:2100px;margin-left:auto;margin-right:auto;gap:90px">
-        <div class="stage" style="margin-top:12px;min-height:0">
-          <h3 style="font-size:44px"><span class="n">LNX</span>Linux</h3>
-          <ul style="font-size:30px"><li><b>root (UID 0)</b>: superusuario.</li><li><b>rwx</b>: permisos para dueño, grupo y otros.</li><li><b>SUID/SGID</b>: ejecución con identidad del dueño o grupo.</li><li><b>sudo</b>: comandos permitidos por reglas.</li><li><b>cron, PATH y capabilities</b>: otros puntos a revisar.</li></ul>
+        <div class="stage glow" style="margin-top:12px;min-height:0">
+          <h3 style="font-size:44px"><span class="n">★</span>La cuenta que manda</h3>
+          <p style="font-size:32px">En Linux es <b>root</b>. En Windows, <b>Administrator</b> y <b>SYSTEM</b>. Escalar es llegar hasta ahí.</p>
         </div>
         <div class="stage" style="margin-top:12px;min-height:0">
-          <h3 style="font-size:44px"><span class="n">WIN</span>Windows</h3>
-          <ul style="font-size:30px"><li><b>Administrator y SYSTEM</b>: identidades privilegiadas.</li><li><b>SID y token</b>: identidad y privilegios de cada proceso.</li><li><b>Servicios</b>: pueden correr como SYSTEM.</li><li><b>UAC</b>: confirmación de elevación.</li><li><b>MSI</b>: instalador afectado por AlwaysInstallElevated.</li></ul>
+          <h3 style="font-size:44px"><span class="n">🛡</span>Mínimo privilegio</h3>
+          <p style="font-size:32px">Darle a cada usuario y programa <b>sólo lo justo</b>. Casi toda escalada nace de romper esta regla.</p>
         </div>
       </div>
     </section>
@@ -295,26 +281,32 @@
     <!-- ============ METODOLOGIA ============ -->
     <section class="node" id="method" style="left:5000px;top:5480px;width:2800px">
       <div class="anim tag" style="font-size:28px">03 · Método</div>
-      <h2 class="anim" style="margin-top:60px;font-size:70px">De la enumeración a la comprobación</h2>
+      <h2 class="anim" style="margin-top:60px;font-size:70px">Cómo se busca el camino</h2>
       <div class="anim row" style="margin-top:50px">
-        <div class="stage" style="margin-top:18px;min-height:0"><h3 style="font-size:44px"><span class="n">01</span>Enumerar</h3><p style="font-size:30px">Identidad, grupos, permisos, binarios, servicios, tareas, archivos escribibles y versiones.<br><b>Es la búsqueda del descuido.</b></p></div>
-        <div class="stage" style="margin-top:18px;min-height:0"><h3 style="font-size:44px"><span class="n">02</span>Identificar</h3><p style="font-size:30px">Elegir un vector concreto y comprobar sus requisitos: por ejemplo, un SUID abusable o una ruta de servicio escribible.</p></div>
-        <div class="stage" style="margin-top:0;min-height:0"><h3 style="font-size:44px"><span class="n">03</span>Explotar</h3><p style="font-size:30px">Ejecutar una acción con los permisos elevados que aporta ese vector</p></div>
-        <div class="stage" style="margin-top:0;min-height:0"><h3 style="font-size:44px"><span class="n">04</span>Comprobar</h3><p style="font-size:30px">Verificar la identidad del proceso elevado: <code>id</code> y UID efectivo 0 en Linux; <code>whoami</code> dentro del proceso en Windows.</p></div>
+        <div class="stage" style="margin-top:18px;min-height:0"><h3 style="font-size:42px"><span class="n">01</span>Reconocimiento</h3><p style="font-size:30px">Mirar el sistema por dentro y anotar todo lo aprovechable, quién soy, qué permisos tengo, qué corre con privilegios. <b>Acá está el 90% del trabajo.</b></p></div>
+        <div class="stage" style="margin-top:18px;min-height:0"><h3 style="font-size:42px"><span class="n">02</span>Vector</h3><p style="font-size:30px">La vía concreta que encontramos para subir de nivel. Una puerta mal cerrada que nos deja pasar.</p></div>
+        <div class="stage" style="margin-top:0;min-height:0"><h3 style="font-size:42px"><span class="n">03</span>Explotación</h3><p style="font-size:30px">Usar ese vector para ejecutar algo con permisos elevados, casi siempre abrir un <b>shell</b> como root o SYSTEM.</p></div>
+        <div class="stage" style="margin-top:0;min-height:0"><h3 style="font-size:42px"><span class="n">04</span>Comprobación</h3><p style="font-size:30px">Confirmar que subimos de nivel. <code>id</code> en Linux, <code>whoami</code> en Windows.</p></div>
       </div>
-      <p class="anim" style="font-size:34px;margin-top:70px;color:var(--sub)">Las herramientas automáticas ayudan a <b class="accent">enumerar</b>, y algunas a <b class="accent">identificar</b>.</p>
+      <p class="anim" style="font-size:34px;margin-top:64px;color:var(--sub)">El reconocimiento, o <b class="accent">enumeración</b>, se puede hacer a mano o con herramientas que lo hacen solas <span class="muted">(las vemos al final)</span>.</p>
     </section>
 
     <!-- ============ WINDOWS OVERVIEW ============ -->
     <section class="node win" id="win" style="left:1400px;top:1520px;width:2200px">
       <div class="anim tag win" style="font-size:28px">Sistema · Windows</div>
       <h2 class="anim" style="margin-top:60px;font-size:70px">Windows</h2>
-      <p class="anim big" style="font-size:36px;margin-top:50px;margin-bottom:30px">El objetivo es obtener privilegios de <span class="accent">Administrator o NT AUTHORITY\SYSTEM</span>. Dos configuraciones peligrosas:</p>
-      <ul class="anim" style="font-size:34px;margin-top:36px;margin-bottom:36px">
-        <li style="margin:18px 0"><b>Caso W1 —</b> Unquoted Service Path</li>
-        <li style="margin:18px 0"><b>Caso W2 —</b> Política <code>AlwaysInstallElevated</code></li>
+      <p class="anim big" style="font-size:36px;margin-top:50px;margin-bottom:26px"><b>Administrator</b> es la cuenta que manda. <b>SYSTEM</b> es todavía más, la identidad interna que usa el propio Windows. Escalar acá es <span class="accent">llegar a una de ellas</span>.</p>
+      <p class="anim" style="font-size:34px;margin-top:16px;margin-bottom:14px;color:var(--sub)">Vamos a mostrar <b>dos vías</b>, cada una la presenta un compañero.</p>
+      <ul class="anim" style="font-size:34px;margin-top:20px;margin-bottom:30px">
+        <li style="margin:16px 0"><b>Vía 1</b> · Ruta de servicio sin comillas</li>
+        <li style="margin:16px 0"><b>Vía 2</b> · Política <code>AlwaysInstallElevated</code></li>
       </ul>
-      <p class="anim muted" style="font-size:28px;margin-top:70px">Enumeración: <b class="mono accent">winPEAS.exe</b> / <b class="mono accent">PowerUp.ps1</b> → buscan rutas sin comillas, servicios modificables y la política de instaladores MSI.</p>
+      <p class="anim muted" style="font-size:32px;margin-top:44px">Para encontrarlas usamos <b class="accent">WinPEAS</b>, que revisa el equipo y marca solo estos descuidos.</p>
+    </section>
+
+    <!-- ============ WINDOWS CASE 1 DEMO ============ -->
+    <section class="node win" id="w1-demo-node" style="left:700px;top:2280px;width:1200px;padding:80px;text-align:center">
+      <div class="anim demo" id="w1-demo" style="font-size:32px;padding:26px 32px;margin:0;display:inline-block">▶ PUNTO DE DEMO — Demostración de vulnerabilidad</div>
     </section>
 
     <!-- ============ WINDOWS CASE 1 ============ -->
@@ -356,21 +348,6 @@
           <li style="margin:18px 0">Auditar con <b class="mono" style="color:var(--ok)">PowerUp/winPEAS</b> y corregir en el hardening base.</li>
         </ul>
       </div>
-
-      <div class="anim demo" id="w1-demo" style="font-size:26px;padding:18px 22px;margin-top:40px">▶ PUNTO DE DEMO — ruta sin comillas + carpeta escribible + reinicio del servicio</div>
-    </section>
-
-    <!-- ============ WINDOWS CASE 1 QUESTION ============ -->
-    <section class="node q win" id="qw1" style="left:400px;top:5000px;width:1900px">
-      <div class="anim tag win">? · Pregunta al público · Ronda 1</div>
-      <h2 class="anim" style="margin-top:18px">¿Qué condición vuelve <i>explotable</i> un Unquoted Service Path?</h2>
-      <div class="anim options" data-correct="B">
-        <button class="opt"><span class="k">A</span>Que el servicio esté detenido permanentemente.</button>
-        <button class="opt"><span class="k">B</span>Permiso de escritura en una carpeta intermedia de la ruta.</button>
-        <button class="opt"><span class="k">C</span>Que el antivirus esté actualizado.</button>
-        <button class="opt"><span class="k">D</span>Que la ruta no tenga espacios.</button>
-      </div>
-      <div class="anim board-mount"></div>
     </section>
 
     <!-- ============ WINDOWS CASE 2 ============ -->
@@ -398,32 +375,24 @@
           <li style="margin:18px 0">Auditar ambas ramas del registro, no sólo una.</li>
         </ul>
       </div>
-      <div class="anim demo" id="w2-demo">▶ PUNTO DE DEMO — dos claves en 1 → MSI elevado; una sola en 1 → no aplica</div>
     </section>
 
-    <!-- ============ WINDOWS CASE 2 QUESTION ============ -->
-    <section class="node q win" id="qw2" style="left:400px;top:8260px;width:1900px">
-      <div class="anim tag win">? · Pregunta al público · Ronda 2</div>
-      <h2 class="anim" style="margin-top:18px">¿Qué requiere AlwaysInstallElevated para elevar un MSI?</h2>
-      <div class="anim options" data-correct="A">
-        <button class="opt"><span class="k">A</span>El valor en 1 en HKCU y HKLM.</button>
-        <button class="opt"><span class="k">B</span>El valor en 1 sólo en HKCU.</button>
-        <button class="opt"><span class="k">C</span>Una ruta de servicio sin comillas.</button>
-        <button class="opt"><span class="k">D</span>El bit SUID en el MSI.</button>
-      </div>
-      <div class="anim board-mount"></div>
+    <!-- ============ WINDOWS CASE 2 DEMO ============ -->
+    <section class="node win" id="w2-demo-node" style="left:2700px;top:7180px;width:1200px;padding:80px;text-align:center">
+      <div class="anim demo" id="w2-demo" style="font-size:32px;padding:26px 32px;margin:0;display:inline-block">▶ PUNTO DE DEMO — AlwaysInstallElevated</div>
     </section>
 
     <!-- ============ LINUX OVERVIEW ============ -->
     <section class="node lin" id="lin" style="left:9400px;top:1520px;width:2200px">
       <div class="anim tag lin" style="font-size:28px">Sistema · Linux</div>
       <h2 class="anim" style="margin-top:60px;font-size:70px">Linux</h2>
-      <p class="anim big" style="font-size:36px;margin-top:50px;margin-bottom:30px">El objetivo es pasar de un usuario común a <span class="accent">root (uid=0)</span>. Dos técnicas clásicas:</p>
-      <ul class="anim" style="font-size:30px;margin-top:36px;margin-bottom:36px">
-        <li style="margin:18px 0"><b>Caso L1 —</b> Binario <b>SUID</b> abusable (GTFOBins).</li>
-        <li style="margin:18px 0"><b>Caso L2 —</b> Mala configuración de <b>sudo</b> (<code>NOPASSWD</code>).</li>
+      <p class="anim big" style="font-size:36px;margin-top:50px;margin-bottom:26px"><b>root</b> es el usuario todopoderoso de Linux, puede hacer absolutamente todo. Escalar acá es pasar de un usuario común a <span class="accent">root</span>.</p>
+      <p class="anim" style="font-size:34px;margin-top:16px;margin-bottom:14px;color:var(--sub)">Otra vez, <b>dos vías</b>, cada una la presenta un compañero.</p>
+      <ul class="anim" style="font-size:34px;margin-top:20px;margin-bottom:30px">
+        <li style="margin:16px 0"><b>Vía 1</b> · Un programa con permisos especiales (<b>SUID</b>)</li>
+        <li style="margin:16px 0"><b>Vía 2</b> · Una regla de <b>sudo</b> demasiado floja</li>
       </ul>
-      <p class="anim muted" style="font-size:34px;margin-top:70px">Enumeración: <span class="mono">linPEAS.sh</span> / <span class="mono">find / -perm -4000</span> / <span class="mono">sudo -l</span> → buscan SUID, capabilities, cron y reglas de sudo.</p>
+      <p class="anim muted" style="font-size:32px;margin-top:44px">Para encontrarlas usamos <b class="accent">LinPEAS</b>, la misma herramienta en su versión para Linux.</p>
     </section>
 
     <!-- ============ LINUX CASE 1 ============ -->
@@ -452,19 +421,6 @@
 
       <p class="anim muted" style="font-size:28px;margin-top:20px;margin-left:35px;">La opción <code>-p</code> conserva el UID efectivo elevado</p>
       <div class="anim demo" id="l1-demo">▶ PUNTO DE DEMO — comparar el UID efectivo con y sin <code>-p</code></div>
-    </section>
-
-    <!-- ============ LINUX CASE 1 QUESTION ============ -->
-    <section class="node q lin" id="ql1" style="left:8600px;top:4620px;width:1900px">
-      <div class="anim tag lin">? · Pregunta al público · Ronda 3</div>
-      <h2 class="anim" style="margin-top:18px">¿Como piensan que se resuelve esta vulnerabilidad?</h2>
-      <div class="anim options" data-correct="A,B,C,D">
-        <button class="opt"><span class="k">A</span>Quitar el bit SUID si no es necesario: <code>chmod u-s /usr/bin/find</code>.</button>
-        <button class="opt"><span class="k">B</span>Monitorear los binarios SUID y compararlos periódicamente con una línea base conocida.</button>
-        <button class="opt"><span class="k">C</span>Preferir <code>capabilities</code> para otorgar permisos puntuales.</button>
-        <button class="opt"><span class="k">D</span>Usar <code>nosuid</code> donde corresponda.</button>
-      </div>
-      <div class="anim board-mount"></div>
     </section>
 
     <!-- ============ LINUX CASE 2 ============ -->
@@ -504,41 +460,29 @@
       <div class="anim demo" id="l2-demo">▶ PUNTO DE DEMO — regla NOPASSWD con editor frente a comando limitado</div>
     </section>
 
-    <!-- ============ LINUX CASE 2 QUESTION ============ -->
-    <section class="node q lin" id="ql2" style="left:8600px;top:7880px;width:1900px">
-      <div class="anim tag lin">? · Pregunta al público · Ronda 4</div>
-      <h2 class="anim" style="margin-top:18px">¿Cuál entrada de sudoers es más peligrosa?</h2>
-      <div class="anim options" data-correct="C">
-        <button class="opt"><span class="k">A</span><code>user ALL=(ALL) /usr/bin/id</code></button>
-        <button class="opt"><span class="k">B</span>Ninguna entrada de sudo es peligrosa.</button>
-        <button class="opt"><span class="k">C</span><code>user ALL=(ALL) NOPASSWD: /usr/bin/vim</code></button>
-        <button class="opt"><span class="k">D</span><code>user localhost=(user) /bin/echo</code></button>
-      </div>
-      <div class="anim board-mount"></div>
-    </section>
-
     <!-- ============ HERRAMIENTAS ============ -->
     <section class="node" id="tools" style="left:5000px;top:9280px;width:2800px">
-      <div class="anim tag" style="font-size:28px">04 · Enumeración automática</div>
-      <h2 class="anim" style="margin-top:60px;font-size:70px">Qué busca cada herramienta</h2>
-      <div class="anim row" style="margin-top:50px">
-        <div class="stage" style="margin-top:16px;min-height:0"><h3 style="font-size:44px"><span class="n">LNX</span>LinPEAS</h3><p style="font-size:30px">SUID/SGID, reglas de sudo, cron, PATH, permisos de escritura, capabilities, versiones y posibles credenciales expuestas.</p></div>
-        <div class="stage" style="margin-top:16px;min-height:0"><h3 style="font-size:44px"><span class="n">WIN</span>WinPEAS</h3><p style="font-size:30px">Servicios y rutas débiles, AlwaysInstallElevated, privilegios del token, tareas modificables y credenciales guardadas.</p></div>
+      <div class="anim tag" style="font-size:28px">04 · Herramientas</div>
+      <h2 class="anim" style="margin-top:60px;font-size:70px">Las que hacen el reconocimiento solas</h2>
+      <p class="anim big" style="font-size:36px;margin-top:44px;margin-bottom:18px">No hacen magia. Revisan lo mismo que revisaríamos a mano, pero todo junto y en segundos, y marcan lo que conviene mirar.</p>
+      <div class="anim row" style="margin-top:28px">
+        <div class="stage" style="margin-top:16px;min-height:0"><h3 style="font-size:44px"><span class="n">LNX</span>LinPEAS</h3><p style="font-size:30px">Recorre todo el sistema Linux y resalta lo aprovechable, permisos raros, programas que corren como root y configuraciones mal hechas.</p></div>
+        <div class="stage" style="margin-top:16px;min-height:0"><h3 style="font-size:44px"><span class="n">WIN</span>WinPEAS</h3><p style="font-size:30px">Lo mismo para Windows. Busca servicios débiles, políticas peligrosas y accesos que no deberían estar abiertos.</p></div>
       </div>
-      <div class="anim stage" style="min-height:0;margin-top:24px"><h3 style="font-size:44px"><span class="n">PS</span>PowerUp</h3><p style="font-size:30px"><code>Invoke-AllChecks</code> revisa servicios modificables, rutas sin comillas, AlwaysInstallElevated y secuestro de DLL. Puede sugerir comandos para validar hallazgos.</p></div>
+      <div class="anim stage" style="min-height:0;margin-top:24px"><h3 style="font-size:44px"><span class="n">PS</span>PowerUp</h3><p style="font-size:30px">Otra para Windows, más al grano. Revisa los mismos descuidos y, cuando encuentra uno, muchas veces te dice el comando exacto para aprovecharlo.</p></div>
     </section>
 
     <!-- ============ CLOSING ============ -->
     <section class="node" id="end" style="left:5300px;top:10980px;width:2400px">
-      <div class="anim tag" style="font-size:28px">Cierre · Remediación</div>
-      <h2 class="anim" style="margin-top:60px;font-size:70px">Defender cada vector</h2>
-      <ul class="anim" style="font-size:34px;margin-top:36px;margin-bottom:36px">
-        <li style="margin:26px 0"><b>SUID:</b> quitar el bit cuando no es necesario; inventariar binarios y preferir capabilities puntuales.</li>
-        <li style="margin:26px 0"><b>sudo:</b> permitir sólo comandos acotados, evitar editores con escape y usar <code>sudoedit</code>.</li>
-        <li style="margin:26px 0"><b>Servicio Windows:</b> encomillar la ruta y restringir escritura en las carpetas candidatas.</li>
-        <li style="margin:26px 0"><b>AlwaysInstallElevated:</b> desactivar la política en HKCU y HKLM; distribuir software de forma controlada.</li>
+      <div class="anim tag" style="font-size:28px">Cierre · Defensa</div>
+      <h2 class="anim" style="margin-top:60px;font-size:70px">Cómo se corta el riesgo</h2>
+      <p class="anim big" style="font-size:38px;margin-top:44px;margin-bottom:16px">Cada caso tiene su arreglo puntual, que ya vieron. Debajo de todos hay <span class="accent">tres ideas</span> que los cubren.</p>
+      <ul class="anim" style="font-size:34px;margin-top:26px;margin-bottom:30px">
+        <li style="margin:22px 0"><b>Mínimo privilegio.</b> Cada usuario y cada programa con lo justo, nada de más. Casi toda escalada nace de romper esto.</li>
+        <li style="margin:22px 0"><b>Cerrar los descuidos.</b> Los permisos, reglas y políticas mal puestas que abrieron cada puerta.</li>
+        <li style="margin:22px 0"><b>Auditar y actualizar.</b> Pasar las mismas herramientas del atacante, pero del lado del que defiende, y mantener todo al día.</li>
       </ul>
-      <p class="anim big" style="font-size:40px">En todos los casos: <span class="accent">mínimo privilegio, actualizaciones y auditoría periódica</span>.</p>
+      <p class="anim big" style="font-size:42px">El atacante gana por un descuido. El defensor gana <span class="accent">quitándoselos de a uno</span>.</p>
       <p class="anim mono muted" style="font-size:24px;margin-top:40px">Grupo 2 · Seguridad Ofensiva 2C 2026</p>
     </section>
 
@@ -559,37 +503,33 @@
 const STEPS = [
   {sel:'#title'},
   {sel:'#intro'},
-  {sel:'#q0'},
   {sel:'#base'},
   {sel:'#method'},
 
   {sel:'#win', pad:260},
+  {sel:'#w1-demo', pad:400},
   {sel:'#w1', pad:820},
   {sel:'#w1-vuln', pad:110},
   {sel:'#w1-exploit', pad:110},
   {sel:'#w1-rem', pad:110},
-  {sel:'#w1-demo', pad:300},
-  {sel:'#qw1'},
 
   {sel:'#w2', pad:820},
   {sel:'#w2-vuln', pad:110},
   {sel:'#w2-exploit', pad:110},
+  {sel:'#w2-demo', pad:400},
   {sel:'#w2-rem', pad:110},
-  {sel:'#qw2'},
 
   {sel:'#lin', pad:260},
   {sel:'#l1', pad:820},
   {sel:'#l1-vuln', pad:110},
   {sel:'#l1-exploit', pad:110},
   {sel:'#l1-demo', pad:300},
-  {sel:'#ql1'},
 
   {sel:'#l2', pad:820},
   {sel:'#l2-vuln', pad:110},
   {sel:'#l2-exploit', pad:110},
   {sel:'#l2-rem', pad:110},
   {sel:'#l2-demo', pad:300},
-  {sel:'#ql2'},
 
   {sel:'#tools'},
   {sel:'#end'},
