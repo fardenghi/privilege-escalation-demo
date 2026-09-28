@@ -475,7 +475,7 @@
       <div class="anim stage glow" id="l2-vuln" style="margin-top:50px">
         <h3 style="font-size:42px"><span class="n">01</span>La debilidad</h3>
         <p style="font-size:30px;margin-top:22px">Una regla en <code>/etc/sudoers</code> permite ejecutar un programa como root. El riesgo está en autorizar uno que abre una shell o ejecuta comandos; <b>NOPASSWD</b> permite hacerlo sin contraseña.</p>
-        <div class="sudoentry" style="font-size:28px;margin-top:26px">user ALL=(ALL) /usr/bin/apt-get</div>
+        <div class="sudoentry" style="font-size:28px;margin-top:26px">user ALL=(ALL) /usr/bin/echo</div>
         <div class="sudoentry hot" style="font-size:28px;margin-top:16px">user ALL=(ALL) <b>NOPASSWD:</b> /usr/bin/vim &nbsp;<span class="arrow">← peligroso</span></div>
       </div>
 
@@ -588,6 +588,7 @@ const STEPS = [
   {sel:'#l2-vuln', pad:110},
   {sel:'#l2-exploit', pad:110},
   {sel:'#l2-rem', pad:110},
+  {sel:'#l2-demo', pad:300},
   {sel:'#ql2'},
 
   {sel:'#tools'},
