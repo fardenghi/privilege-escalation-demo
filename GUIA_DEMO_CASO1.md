@@ -123,7 +123,8 @@ find / -perm -4000 -type f 2>/dev/null
    - Verás binarios estándar como `/usr/bin/passwd` o `/usr/bin/su` en texto normal.
    - **`/usr/bin/find` aparece destacado en ROJO con FONDO AMARILLO brillante (`RED/YELLOW`)**.
 3. **El salto a GTFOBins:**
-   - Explicar: *"LinPEAS no nos da el comando servido en bandeja ni escribe la palabra 'gtfobins' en cada línea, sino que nos enciende la alarma visual de que `/usr/bin/find` es abusable. Con este dato, el auditor va al catálogo público de **GTFOBins** (`gtfobins.github.io`), busca `find` en la categoría SUID y obtiene la técnica de escape."*
+   - **¿Qué es GTFOBins?** Es un catálogo público colaborativo que documenta cómo abusar de funciones nativas de programas legítimos de Unix (como `-exec` o escapes a shell) para escalar privilegios cuando están mal configurados con SUID o sudo.
+   - Explicar a la clase: *"LinPEAS no nos da el comando servido en bandeja ni escribe la palabra 'gtfobins' en cada línea, sino que nos enciende la alarma visual de que `/usr/bin/find` es abusable. Con este dato, el auditor va al catálogo de **GTFOBins** (`gtfobins.github.io`), busca `find` en la categoría SUID y obtiene la técnica de escape."*
 
 ---
 
